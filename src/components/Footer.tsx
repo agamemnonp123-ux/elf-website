@@ -43,7 +43,13 @@ export default function Footer() {
                     <div>
                         <h4 className="font-inter text-xs tracking-[0.3em] uppercase text-elf-gold mb-6">Company</h4>
                         <ul className="space-y-3">
-                            {[['Our Story', '/about'], ['Portfolio', '/portfolio'], ['Blog', '/blog'], ['Contact', '/contact'], ['Client Login', '/login']].map(([label, href]) => (
+                            {[
+                                ['Our Story', '/about'],
+                                ['Portfolio', '/portfolio'],
+                                ['Contact', '/contact'],
+                                ['Client Portal', '/client/dashboard'],
+                                ['Admin Portal', '/admin/dashboard']
+                            ].map(([label, href]) => (
                                 <li key={href}>
                                     <Link href={href} className="font-inter text-sm text-white/50 hover:text-elf-gold transition-colors duration-200">
                                         {label}
