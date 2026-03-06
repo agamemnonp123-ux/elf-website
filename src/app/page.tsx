@@ -26,6 +26,16 @@ const services = [
     },
 ];
 
+const subServices = [
+    { name: 'Decor 🎀', icon: '✨' },
+    { name: 'Catering (Sweets & Finger Food) 🍪', icon: '🍽️' },
+    { name: 'Makeup Artist 💄', icon: '🎨' },
+    { name: 'Photo & Video 📸🎥', icon: '🎬' },
+    { name: 'Sound System 🔊', icon: '🎵' },
+    { name: 'Cake Designer 🎂', icon: '🍰' },
+    { name: 'Dress Rental 👗', icon: '⚜️' },
+];
+
 const stats = [
     { value: '250+', label: 'Events Planned' },
     { value: '8', label: 'Years of Excellence' },
@@ -167,6 +177,35 @@ export default function HomePage() {
                         <Link href="/services" className="btn-outline">
                             Explore All Services <ArrowRight size={16} />
                         </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* ─── ESSENTIAL SERVICES ─────────────────────────── */}
+            <section className="py-24 px-6 bg-white border-t border-elf-border">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                        <div className="max-w-xl">
+                            <span className="section-label">A la Carte</span>
+                            <h2 className="heading-serif text-4xl mt-2">Extraordinary Essentials</h2>
+                        </div>
+                        <p className="font-inter text-elf-muted text-sm max-w-xs md:text-right leading-relaxed">
+                            Bespoke planning isn't just about the big picture — it's about every individual thread being perfect.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                        {subServices.map((s, i) => (
+                            <div key={s.name}
+                                className="group bg-elf-cream border border-elf-border p-8 text-center flex flex-col items-center justify-center hover:border-elf-gold transition-all duration-500"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                            >
+                                <div className="text-3xl mb-4 group-hover:scale-125 transition-transform duration-500 transform-gpu">{s.icon}</div>
+                                <div className="font-inter text-[10px] tracking-widest uppercase text-elf-charcoal font-semibold leading-tight px-2 group-hover:text-elf-gold transition-colors">
+                                    {s.name.replace(/[^\x00-\x7F]/g, '').trim()}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
