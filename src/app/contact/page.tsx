@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ArrowRight, Mail, Phone, MapPin, Instagram, Facebook, Send } from 'lucide-react';
+import { ArrowRight, Mail, Phone, MapPin, Instagram, Facebook, Send, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const eventTypes = ['Wedding', 'Corporate Event', 'Destination Wedding', 'Social Celebration', 'Other'];
 const budgetRanges = ['Under $15K', '$15K – $25K', '$25K – $50K', '$50K – $100K', '$100K+'];
@@ -18,6 +19,8 @@ export default function ContactPage() {
         venue: '', vision: '', referral: '',
     });
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const toggleService = (s: string) => {
         setForm(prev => ({
@@ -26,9 +29,38 @@ export default function ContactPage() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitted(true);
+        setLoading(true);
+        setError(null);
+
+        try {
+            const { error: supabaseError } = await supabase
+                .from('leads')
+                .insert([
+                    {
+                        name: form.name,
+                        email: form.email,
+                        phone: form.phone,
+                        event_type: form.eventType,
+                        event_date: form.date,
+                        guest_count: form.guests,
+                        budget: form.budget,
+                        services: form.services,
+                        venue: form.venue,
+                        vision: form.vision,
+                        referral: form.referral,
+                    },
+                ]);
+
+            if (supabaseError) throw supabaseError;
+            setSubmitted(true);
+        } catch (err: any) {
+            console.error('Submission error:', err);
+            setError('Something went wrong. Please try again or contact us directly.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -302,10 +334,24 @@ export default function ContactPage() {
                                             />
                                         </div>
 
+                                        {error && (
+                                            <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-sm font-inter mb-4">
+                                                {error}
+                                            </div>
+                                        )}
+
                                         <div className="flex gap-4 pt-4">
-                                            <button type="button" onClick={() => setStep(2)} className="btn-outline">Back</button>
-                                            <button type="submit" disabled={!form.vision} className="btn-gold disabled:opacity-40 disabled:cursor-not-allowed">
-                                                Send Inquiry <Send size={16} />
+                                            <button type="button" onClick={() => setStep(2)} className="btn-outline" disabled={loading}>Back</button>
+                                            <button
+                                                type="submit"
+                                                disabled={!form.vision || loading}
+                                                className="btn-gold disabled:opacity-40 disabled:cursor-not-allowed min-w-[160px]"
+                                            >
+                                                {loading ? (
+                                                    <span className="flex items-center gap-2">Processing <Loader2 size={16} className="animate-spin" /></span>
+                                                ) : (
+                                                    <span className="flex items-center gap-2">Send Inquiry <Send size={16} /></span>
+                                                )}
                                             </button>
                                         </div>
                                     </div>
