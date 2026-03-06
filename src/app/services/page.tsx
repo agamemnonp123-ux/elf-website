@@ -82,6 +82,16 @@ const corporateServices = [
     { icon: '❋', title: 'Holiday Parties', desc: 'Memorable celebrations that bring teams and clients together.' },
 ];
 
+const subServices = [
+    { name: 'Decor 🎀', icon: '✨' },
+    { name: 'Catering (Sweets & Finger Food) 🍪', icon: '🍽️' },
+    { name: 'Makeup Artist 💄', icon: '🎨' },
+    { name: 'Photo & Video 📸🎥', icon: '🎬' },
+    { name: 'Sound System 🔊', icon: '🎵' },
+    { name: 'Cake Designer 🎂', icon: '🍰' },
+    { name: 'Dress Rental 👗', icon: '⚜️' },
+];
+
 export default function ServicesPage() {
     return (
         <main>
@@ -126,8 +136,8 @@ export default function ServicesPage() {
                             <div
                                 key={pkg.name}
                                 className={`relative flex flex-col border p-8 card-hover ${pkg.featured
-                                        ? 'bg-elf-charcoal border-elf-gold text-white'
-                                        : 'bg-white border-elf-border'
+                                    ? 'bg-elf-charcoal border-elf-gold text-white'
+                                    : 'bg-white border-elf-border'
                                     }`}
                             >
                                 {pkg.featured && (
@@ -161,8 +171,8 @@ export default function ServicesPage() {
                                 <Link
                                     href="/contact"
                                     className={`flex items-center justify-center gap-2 py-3 px-6 text-xs font-inter tracking-widest uppercase transition-all duration-300 ${pkg.featured
-                                            ? 'bg-elf-gold text-white hover:bg-elf-gold-light'
-                                            : 'border border-elf-charcoal text-elf-charcoal hover:bg-elf-charcoal hover:text-white'
+                                        ? 'bg-elf-gold text-white hover:bg-elf-gold-light'
+                                        : 'border border-elf-charcoal text-elf-charcoal hover:bg-elf-charcoal hover:text-white'
                                         }`}
                                 >
                                     Inquire <ArrowRight size={12} />
@@ -198,6 +208,30 @@ export default function ServicesPage() {
                                 <div>
                                     <h3 className="font-playfair text-lg text-white font-medium mb-1 group-hover:text-elf-gold transition-colors duration-300">{s.title}</h3>
                                     <p className="font-inter text-sm text-white/40 leading-relaxed">{s.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Supplemental Services */}
+            <section className="py-28 px-6 bg-white">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center mb-16">
+                        <span className="section-label">A la Carte</span>
+                        <h2 className="heading-serif text-4xl mb-4">Event Essentials</h2>
+                        <p className="font-inter text-elf-muted max-w-xl mx-auto font-medium">
+                            Need specific support? Our curated network of partners and in-house expertise covers every detail.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+                        {subServices.map((s) => (
+                            <div key={s.name} className="flex flex-col items-center text-center p-8 bg-elf-cream border border-elf-border group hover:border-elf-gold transition-colors duration-300">
+                                <div className="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">{s.icon}</div>
+                                <div className="font-inter text-[10px] tracking-widest uppercase text-elf-charcoal leading-tight font-semibold">
+                                    {s.name.replace(/[^\x00-\x7F]/g, '').trim()}
                                 </div>
                             </div>
                         ))}

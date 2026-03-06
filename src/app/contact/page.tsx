@@ -8,7 +8,17 @@ import { supabase } from '@/lib/supabase';
 
 const eventTypes = ['Wedding', 'Corporate Event', 'Destination Wedding', 'Social Celebration', 'Other'];
 const budgetRanges = ['Under $15K', '$15K – $25K', '$25K – $50K', '$50K – $100K', '$100K+'];
-const servicesOptions = ['Full Planning', 'Partial Planning', 'Day-of Coordination', 'Design Only', 'Corporate Events'];
+const servicesOptions = [
+    'Decor 🎀',
+    'Catering (Sweets & Finger Food) 🍪',
+    'Makeup Artist 💄',
+    'Photo & Video 📸🎥',
+    'Sound System 🔊',
+    'Cake Designer 🎂',
+    'Dress Rental 👗',
+    'Full Planning',
+    'Destination Wedding'
+];
 
 export default function ContactPage() {
     const [step, setStep] = useState(1);
@@ -102,7 +112,12 @@ export default function ContactPage() {
                                 </div>
                                 <div>
                                     <div className="font-inter text-xs tracking-widest uppercase text-elf-muted mb-1">Phone</div>
-                                    <div className="font-inter text-sm text-elf-charcoal">+251 91 234 5678</div>
+                                    <div className="font-inter text-sm text-elf-charcoal space-y-1">
+                                        <div>+251 977 11 5969</div>
+                                        <div>+251 969 77 6918</div>
+                                        <div>+251 941 87 7861</div>
+                                        <div>+251 910 83 6667</div>
+                                    </div>
                                 </div>
                             </li>
                             <li className="flex items-start gap-4">
