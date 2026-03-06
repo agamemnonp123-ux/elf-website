@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #F9F5F0;
+  --warm: #F0E8DC;
+  --gold: #C9A96E;
+  --charcoal: #1A1A1A;
+  --muted: #6B6560;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--charcoal);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .btn-gold {
+    @apply inline-flex items-center gap-2 px-8 py-4 bg-elf-gold text-white font-inter font-medium tracking-widest text-sm uppercase transition-all duration-300 hover:bg-elf-gold-light hover:shadow-lg hover:shadow-elf-gold/20 hover:-translate-y-0.5;
+  }
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-8 py-4 border border-elf-charcoal text-elf-charcoal font-inter font-medium tracking-widest text-sm uppercase transition-all duration-300 hover:bg-elf-charcoal hover:text-elf-cream hover:-translate-y-0.5;
+  }
+  .section-label {
+    @apply text-xs font-inter font-medium tracking-[0.3em] uppercase text-elf-gold mb-4 block;
+  }
+  .heading-serif {
+    @apply font-playfair font-medium leading-tight text-elf-charcoal;
+  }
+  .card-hover {
+    @apply transition-all duration-500 hover:shadow-2xl hover:-translate-y-2;
+  }
+  .gold-divider {
+    @apply w-16 h-px bg-elf-gold mx-auto my-6;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
