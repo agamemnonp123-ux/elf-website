@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
     ArrowLeft, Loader2, Plus, Sparkles, Trash2, Edit3, Save,
-    X, Info, Image as ImageIcon, Users, ExternalLink, Camera
+    X, Info, Image as ImageIcon, Users, ExternalLink, Camera, Video
 } from 'lucide-react';
 import Link from 'next/link';
 import { deleteFileByUrl } from '@/utils/storage';
@@ -46,6 +46,7 @@ export default function ServicesManagement() {
     const [assets, setAssets] = useState<Asset[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [videoUrlInput, setVideoUrlInput] = useState('');
 
     // Vendor form state
     const [newVendor, setNewVendor] = useState<Partial<Vendor>>({ name: '', description: '' });
@@ -161,6 +162,20 @@ export default function ServicesManagement() {
             }
         }
         setUploading(false);
+    };
+
+    const handleAddVideoAsset = async () => {
+        if (!editingService?.id || !videoUrlInput) return;
+
+        await supabase.from('assets').insert({
+            reference_type: 'service',
+            reference_id: editingService.id,
+            image_url: videoUrlInput,
+            asset_type: 'video'
+        });
+
+        setVideoUrlInput('');
+        fetchDetailData(editingService.id);
     };
 
     const handleAddVendor = async () => {
@@ -350,16 +365,36 @@ export default function ServicesManagement() {
                                     <div className="bg-white border border-elf-border p-8 md:p-12 shadow-sm">
                                         <div className="flex justify-between items-center mb-8">
                                             <h3 className="font-playfair text-xl">Service Gallery</h3>
-                                            <label className="cursor-pointer text-elf-gold hover:text-elf-charcoal transition-colors">
-                                                <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
-                                                {uploading ? <Loader2 size={20} className="animate-spin" /> : <span className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold"><Camera size={16} /> Add Photo</span>}
-                                            </label>
+                                            <div className="flex items-center gap-6">
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        value={videoUrlInput}
+                                                        onChange={e => setVideoUrlInput(e.target.value)}
+                                                        placeholder="YouTube/Vimeo Link"
+                                                        className="text-[10px] bg-elf-warm border border-elf-border px-3 py-1.5 focus:outline-none focus:border-elf-gold w-32"
+                                                    />
+                                                    <button onClick={handleAddVideoAsset} className="text-elf-gold hover:text-elf-charcoal transition-colors">
+                                                        <Video size={16} />
+                                                    </button>
+                                                </div>
+                                                <label className="cursor-pointer text-elf-gold hover:text-elf-charcoal transition-colors">
+                                                    <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
+                                                    {uploading ? <Loader2 size={20} className="animate-spin" /> : <span className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold"><Camera size={16} /> Add Photo</span>}
+                                                </label>
+                                            </div>
                                         </div>
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             {assets.map(asset => (
                                                 <div key={asset.id} className="relative group aspect-square bg-elf-warm border border-elf-border overflow-hidden">
-                                                    <img src={asset.image_url} alt="Gallery" className="w-full h-full object-cover" />
-                                                    <button onClick={() => handleDeleteAsset(asset)} className="absolute top-2 right-2 p-1 bg-white/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {asset.asset_type === 'video' ? (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-elf-charcoal text-white gap-2">
+                                                            <Video size={24} className="text-elf-gold" />
+                                                            <span className="text-[8px] uppercase tracking-widest opacity-50">Video Link</span>
+                                                        </div>
+                                                    ) : (
+                                                        <img src={asset.image_url} alt="Gallery" className="w-full h-full object-cover" />
+                                                    )}
+                                                    <button onClick={() => handleDeleteAsset(asset)} className="absolute top-2 right-2 p-1 bg-white/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                                         <Trash2 size={14} />
                                                     </button>
                                                 </div>

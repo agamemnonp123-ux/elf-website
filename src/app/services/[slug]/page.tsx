@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import {
     ArrowLeft, ArrowRight, Sparkles, Utensils, Brush, Camera,
-    Music, Cake, Car, Star, Loader2, Heart, Shield, Users
+    Music, Cake, Car, Star, Loader2, Heart, Shield, Users, Video
 } from 'lucide-react';
 
 const iconMap: Record<string, any> = {
@@ -103,11 +103,20 @@ export default function ServicePage() {
                             {assets.map((asset, i) => (
                                 <div key={asset.id} className={`group relative overflow-hidden bg-elf-cream animate-fade-in ${i % 3 === 1 ? 'md:mt-12' : ''}`} style={{ animationDelay: `${i * 100}ms` }}>
                                     <div className="aspect-[3/4] overflow-hidden">
-                                        <img src={asset.image_url} alt="Gallery item" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                        {asset.asset_type === 'video' ? (
+                                            <iframe
+                                                src={asset.image_url.replace('watch?v=', 'embed/')}
+                                                className="w-full h-full"
+                                                allowFullScreen
+                                                title="Gallery Video"
+                                            />
+                                        ) : (
+                                            <img src={asset.image_url} alt="Gallery item" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                        )}
                                     </div>
-                                    <div className="absolute inset-0 bg-elf-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                                        <div className="w-12 h-12 border border-white/30 rounded-full flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform duration-500">
-                                            <Camera size={18} />
+                                    <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-elf-charcoal/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-between pointer-events-none">
+                                        <div className="w-8 h-8 border border-white/30 rounded-full flex items-center justify-center text-white">
+                                            {asset.asset_type === 'video' ? <Video size={14} /> : <Camera size={14} />}
                                         </div>
                                     </div>
                                 </div>

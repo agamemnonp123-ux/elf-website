@@ -180,8 +180,24 @@ export default function VendorProfilePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {assets.map((asset, i) => (
                                         <div key={asset.id} className={`group relative bg-elf-cream overflow-hidden border border-elf-border ${i % 3 === 1 ? 'md:mt-12' : ''}`}>
-                                            <img src={asset.image_url} alt="Portfolio item" className="w-full aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-110" />
-                                            <div className="absolute inset-0 bg-elf-charcoal/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            {asset.asset_type === 'video' ? (
+                                                <div className="aspect-[4/5] bg-elf-charcoal relative">
+                                                    <iframe
+                                                        src={asset.image_url.replace('watch?v=', 'embed/')}
+                                                        className="w-full h-full"
+                                                        allowFullScreen
+                                                        title="Gallery Video"
+                                                    />
+                                                    <div className="absolute top-4 right-4 w-8 h-8 bg-elf-gold flex items-center justify-center text-white shadow-lg pointer-events-none">
+                                                        <Video size={14} />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <img src={asset.image_url} alt="Portfolio item" className="w-full aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                                    <div className="absolute inset-0 bg-elf-charcoal/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                </>
+                                            )}
                                         </div>
                                     ))}
                                     {assets.length === 0 && (

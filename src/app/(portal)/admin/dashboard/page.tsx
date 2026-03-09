@@ -115,7 +115,7 @@ export default function AdminDashboard() {
                                         <div className="p-12 text-center text-elf-muted italic">No inquiries yet.</div>
                                     ) : (
                                         recentLeads.map((lead) => (
-                                            <Link key={lead.id} href={`/admin/leads/${lead.id}`} className="p-6 flex items-center justify-between hover:bg-elf-cream transition-colors group cursor-pointer">
+                                            <Link key={lead.id} href="/admin/leads" className="p-6 flex items-center justify-between hover:bg-elf-cream transition-colors group cursor-pointer">
                                                 <div>
                                                     <div className="font-medium text-elf-charcoal">{lead.name}</div>
                                                     <div className="text-xs text-elf-muted flex gap-3 mt-1">
