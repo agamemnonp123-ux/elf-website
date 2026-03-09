@@ -3,7 +3,19 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Utensils, Brush, Camera, Music, Cake, Car } from 'lucide-react';
+import { ArrowRight, Sparkles, Utensils, Brush, Camera, Music, Cake, Car, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+
+const iconMap: Record<string, any> = {
+    'Sparkles': Sparkles,
+    'Utensils': Utensils,
+    'Brush': Brush,
+    'Camera': Camera,
+    'Music': Music,
+    'Cake': Cake,
+    'Car': Car,
+};
 
 const packages = [
     {
@@ -26,17 +38,23 @@ const packages = [
     }
 ];
 
-const essentials = [
-    { name: 'Decor', slug: 'decor', icon: Sparkles, emoji: '✨' },
-    { name: 'Catering', slug: 'catering', icon: Utensils, emoji: '🍽️' },
-    { name: 'Makeup Artist', slug: 'makeup', icon: Brush, emoji: '🎨' },
-    { name: 'Photo & Video', slug: 'photo-video', icon: Camera, emoji: '🎬' },
-    { name: 'Sound System', slug: 'sound-system', icon: Music, emoji: '🎵' },
-    { name: 'Cake Designer', slug: 'cake-designer', icon: Cake, emoji: '🍰' },
-    { name: 'Transportation', slug: 'transportation', icon: Car, emoji: '⚜️' },
-];
-
 export default function ServicesPage() {
+    const [essentials, setEssentials] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const supabase = createClient();
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            const { data } = await supabase
+                .from('services')
+                .select('*')
+                .order('created_at', { ascending: true });
+            if (data) setEssentials(data);
+            setLoading(false);
+        };
+        fetchServices();
+    }, []);
+
     return (
         <main className="bg-elf-cream">
             <Navbar />
@@ -99,24 +117,37 @@ export default function ServicesPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {essentials.map((s) => (
-                            <Link
-                                key={s.slug}
-                                href={`/services/${s.slug}`}
-                                className="group bg-elf-cream border border-elf-border p-10 text-center flex flex-col items-center justify-center hover:border-elf-gold hover:shadow-xl transition-all duration-500"
-                            >
-                                <div className="w-14 h-14 bg-white border border-elf-border flex items-center justify-center mb-6 text-elf-muted group-hover:text-elf-gold group-hover:border-elf-gold transition-all duration-500">
-                                    <s.icon size={24} strokeWidth={1.5} />
-                                </div>
-                                <div className="text-2xl mb-2">{s.emoji}</div>
-                                <div className="font-inter text-xs tracking-[0.2em] uppercase text-elf-charcoal font-semibold mb-4">
-                                    {s.name}
-                                </div>
-                                <div className="text-[10px] tracking-widest uppercase text-elf-gold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                                    Explore <ArrowRight size={10} />
-                                </div>
-                            </Link>
-                        ))}
+                        {loading ? (
+                            <div className="col-span-full py-24 flex justify-center shadow-none">
+                                <Loader2 className="animate-spin text-elf-gold" />
+                            </div>
+                        ) : essentials.length === 0 ? (
+                            <div className="col-span-full py-12 text-center text-elf-muted text-sm italic">
+                                Crafting new services...
+                            </div>
+                        ) : (
+                            essentials.map((s) => {
+                                const Icon = iconMap[s.icon_name] || Sparkles;
+                                return (
+                                    <Link
+                                        key={s.id}
+                                        href={`/services/${s.slug}`}
+                                        className="group bg-elf-cream border border-elf-border p-10 text-center flex flex-col items-center justify-center hover:border-elf-gold hover:shadow-xl transition-all duration-500"
+                                    >
+                                        <div className="w-14 h-14 bg-white border border-elf-border flex items-center justify-center mb-6 text-elf-muted group-hover:text-elf-gold group-hover:border-elf-gold transition-all duration-500">
+                                            <Icon size={24} strokeWidth={1.5} />
+                                        </div>
+                                        <div className="text-2xl mb-2">{s.emoji}</div>
+                                        <div className="font-inter text-xs tracking-[0.2em] uppercase text-elf-charcoal font-semibold mb-4">
+                                            {s.title}
+                                        </div>
+                                        <div className="text-[10px] tracking-widest uppercase text-elf-gold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                                            Explore <ArrowRight size={10} />
+                                        </div>
+                                    </Link>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             </section>

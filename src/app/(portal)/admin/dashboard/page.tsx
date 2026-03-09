@@ -144,6 +144,7 @@ export default function AdminDashboard() {
                                 <nav className="space-y-2">
                                     {[
                                         { label: 'Manage Portfolio', href: '/admin/projects' },
+                                        { label: 'Service Architecture', href: '/admin/services' },
                                         { label: 'Client Inquiries', href: '/admin/leads' },
                                         { label: 'System Settings', href: '/admin/settings' },
                                         { label: 'Client Database', href: '/admin/users' },

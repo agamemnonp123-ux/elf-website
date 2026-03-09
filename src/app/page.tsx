@@ -1,7 +1,11 @@
+'use client';
+
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, Calendar, Sparkles, Users, Star } from 'lucide-react';
+import { ArrowRight, ChevronDown, Calendar, Sparkles, Users, Star, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 
 const services = [
     {
@@ -26,16 +30,6 @@ const services = [
     },
 ];
 
-const subServices = [
-    { slug: 'decor', name: 'Decor 🎀', icon: '✨' },
-    { slug: 'catering', name: 'Catering 🍽️', icon: '🍽️' },
-    { slug: 'makeup', name: 'Makeup Artist 🎨', icon: '🎨' },
-    { slug: 'photo-video', name: 'Photo & Video 🎬', icon: '🎬' },
-    { slug: 'sound-system', name: 'Sound System 🎵', icon: '🎵' },
-    { slug: 'cake-designer', name: 'Cake Designer 🍰', icon: '🍰' },
-    { slug: 'transportation', name: 'Transportation ⚜️', icon: '⚜️' },
-];
-
 const stats = [
     { value: '250+', label: 'Events Planned' },
     { value: '8', label: 'Years of Excellence' },
@@ -58,45 +52,49 @@ const testimonials = [
         rating: 5,
     },
     {
-        name: 'Hana Tesfaye',
-        event: 'Corporate Gala · Kuriftu Resort, 2024',
-        quote: 'The most seamless event I\'ve ever hosted. The team anticipated every need before I even expressed it.',
-        rating: 5,
-    },
-    {
-        name: 'Selam & Yonas',
-        event: 'Destination Wedding · Lalibela, 2023',
-        quote: 'Planning a wedding in Lalibela sounded impossible — elf Events made it extraordinary. Our guests still talk about it.',
+        name: 'Leyla & Khalid',
+        event: 'Engagement · Hyatt Regency, 2023',
+        quote: 'The level of professionalism and artistic vision elf brought to our engagement ceremony was truly world-class.',
         rating: 5,
     },
 ];
 
-export default function HomePage() {
+export default function Home() {
+    const [subServices, setSubServices] = useState<any[]>([]);
+    const [loadingServices, setLoadingServices] = useState(true);
+    const supabase = createClient();
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            const { data } = await supabase
+                .from('services')
+                .select('*')
+                .order('created_at', { ascending: true });
+
+            if (data) setSubServices(data);
+            setLoadingServices(false);
+        };
+        fetchServices();
+    }, []);
+
     return (
-        <main className="overflow-hidden">
+        <main className="min-h-screen bg-elf-cream">
             <Navbar />
 
-            {/* ─── HERO ──────────────────────────────────────────── */}
-            <section className="relative min-h-screen flex items-center justify-center bg-elf-charcoal overflow-hidden">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0F0F0F] via-[#1a1510] to-[#0F0F0F]" />
+            {/* ─── HERO SECTION ─────────────────────────────────── */}
+            <section className="relative h-screen flex items-center justify-center overflow-hidden bg-elf-charcoal">
+                {/* Background overlay with subtle grain/pattern */}
+                <div className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+                    style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/p6.png")' }} />
 
-                {/* Decorative gold orb */}
-                <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-elf-gold/5 blur-3xl pointer-events-none" />
-                <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-elf-gold/5 blur-3xl pointer-events-none" />
-
-                {/* Grid overlay */}
-                <div className="absolute inset-0 opacity-[0.03]"
-                    style={{
-                        backgroundImage: 'linear-gradient(#C9A96E 1px, transparent 1px), linear-gradient(90deg, #C9A96E 1px, transparent 1px)',
-                        backgroundSize: '60px 60px',
-                    }}
-                />
+                {/* Ambient glow */}
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-elf-gold/10 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-elf-gold/5 rounded-full blur-[100px] pointer-events-none" />
 
                 <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-                    <span className="section-label text-center">Wedding & Event Planning</span>
+                    <span className="section-label mb-6 inline-block text-animate animate-fade-in">Established 2016</span>
 
-                    <h1 className="font-playfair text-5xl md:text-7xl lg:text-8xl font-medium text-white leading-[1.05] mb-8">
+                    <h1 className="font-playfair text-6xl md:text-8xl text-white font-medium leading-[1.1] mb-8 animate-slide-up">
                         Every Love Story
                         <br />
                         <span className="text-elf-gold italic">Deserves</span> a
@@ -113,40 +111,24 @@ export default function HomePage() {
                             Begin Your Journey <ArrowRight size={16} />
                         </Link>
                         <Link href="/portfolio" className="btn-outline border-white/30 text-white hover:bg-white hover:text-elf-charcoal">
-                            View Our Work
+                            View Portfolio
                         </Link>
                     </div>
                 </div>
 
-                {/* Scroll indicator */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30">
-                    <span className="font-inter text-[10px] tracking-[0.3em] uppercase">Discover</span>
-                    <ChevronDown size={16} className="animate-bounce" />
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 animate-bounce">
+                    <span className="text-[10px] tracking-[0.3em] uppercase">Scroll to Discover</span>
+                    <ChevronDown size={16} />
                 </div>
             </section>
 
-            {/* ─── STATS ──────────────────────────────────────────── */}
-            <section className="bg-elf-warm py-16 border-y border-elf-border">
-                <div className="max-w-5xl mx-auto px-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        {stats.map((s) => (
-                            <div key={s.label} className="text-center">
-                                <div className="font-playfair text-4xl md:text-5xl font-medium text-elf-charcoal">{s.value}</div>
-                                <div className="font-inter text-xs tracking-widest uppercase text-elf-muted mt-2">{s.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ─── SERVICES ──────────────────────────────────────── */}
-            <section className="py-28 px-6 bg-elf-cream">
+            {/* ─── PLANNING PACKAGES ──────────────────────────── */}
+            <section className="py-32 px-6 bg-white overflow-hidden">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-20">
-                        <span className="section-label">What We Do</span>
-                        <h2 className="heading-serif text-4xl md:text-5xl lg:text-6xl">
-                            Tailored Services for
-                            <br />
+                        <span className="section-label">Our Service Packages</span>
+                        <h2 className="heading-serif text-4xl md:text-5xl mt-4 mb-6">
+                            Elevating
                             <span className="italic text-elf-gold">Every Milestone</span>
                         </h2>
                         <div className="gold-divider" />
@@ -195,19 +177,29 @@ export default function HomePage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                        {subServices.map((s, i) => (
-                            <Link
-                                key={s.name}
-                                href={`/services/${s.slug}`}
-                                className="group bg-elf-cream border border-elf-border p-8 text-center flex flex-col items-center justify-center hover:border-elf-gold transition-all duration-500"
-                                style={{ animationDelay: `${i * 50}ms` }}
-                            >
-                                <div className="text-3xl mb-4 group-hover:scale-125 transition-transform duration-500 transform-gpu">{s.icon}</div>
-                                <div className="font-inter text-[10px] tracking-widest uppercase text-elf-charcoal font-semibold leading-tight px-2 group-hover:text-elf-gold transition-colors">
-                                    {s.name.replace(/[^\x00-\x7F]/g, '').trim()}
-                                </div>
-                            </Link>
-                        ))}
+                        {loadingServices ? (
+                            <div className="col-span-full py-12 flex justify-center">
+                                <Loader2 className="animate-spin text-elf-gold" />
+                            </div>
+                        ) : subServices.length === 0 ? (
+                            <div className="col-span-full py-12 text-center text-elf-muted text-sm italic">
+                                Creating incredible services...
+                            </div>
+                        ) : (
+                            subServices.map((s, i) => (
+                                <Link
+                                    key={s.id}
+                                    href={`/services/${s.slug}`}
+                                    className="group bg-elf-cream border border-elf-border p-8 text-center flex flex-col items-center justify-center hover:border-elf-gold transition-all duration-500"
+                                    style={{ animationDelay: `${i * 50}ms` }}
+                                >
+                                    <div className="text-3xl mb-4 group-hover:scale-125 transition-transform duration-500 transform-gpu">{s.emoji}</div>
+                                    <div className="font-inter text-[10px] tracking-widest uppercase text-elf-charcoal font-semibold leading-tight px-2 group-hover:text-elf-gold transition-colors">
+                                        {s.title.split(' ')[0]}
+                                    </div>
+                                </Link>
+                            ))
+                        )}
                     </div>
                 </div>
             </section>
@@ -250,95 +242,102 @@ export default function HomePage() {
                             </div>
                         </div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-elf-gold flex items-center justify-center">
-                            <Calendar size={24} className="text-white" />
+                            <Star size={32} className="text-white" />
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* ─── PROCESS ───────────────────────────────────────── */}
-            <section className="py-28 px-6 bg-elf-cream">
+            {/* ─── PROCESS ────────────────────────────────────── */}
+            <section className="py-32 px-6 bg-elf-cream relative">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-20">
-                        <span className="section-label">How It Works</span>
-                        <h2 className="heading-serif text-4xl md:text-5xl">
-                            Your Journey,
-                            <span className="italic text-elf-gold"> Simplified</span>
-                        </h2>
-                        <div className="gold-divider" />
-                    </div>
+                    <div className="flex flex-col lg:flex-row gap-20 items-center">
+                        <div className="lg:w-1/3">
+                            <span className="section-label">Methodology</span>
+                            <h2 className="heading-serif text-4xl mt-2 mb-8">The Elf Approach</h2>
+                            <p className="font-inter text-elf-muted leading-relaxed mb-10">
+                                We've refined our process over eight years to ensure clarity, creativity, and absolute peace of mind for our clients.
+                            </p>
+                            <Link href="/contact" className="btn-gold">
+                                Schedule a Call <ArrowRight size={16} />
+                            </Link>
+                        </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0">
-                        {process.map((p, i) => (
-                            <div key={p.step} className="relative p-8 border-t-2 border-t-elf-border group hover:border-t-elf-gold transition-colors duration-300">
-                                <div className="font-playfair text-6xl font-medium text-elf-border group-hover:text-elf-gold/20 transition-colors duration-300 mb-4 leading-none">
-                                    {p.step}
+                        <div className="lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            {process.map((p) => (
+                                <div key={p.step} className="bg-white p-10 border border-elf-border relative overflow-hidden group">
+                                    <div className="font-playfair text-6xl text-elf-gold/10 absolute top-4 right-6 group-hover:text-elf-gold/20 transition-colors">
+                                        {p.step}
+                                    </div>
+                                    <h3 className="font-playfair text-2xl mb-4 relative z-10">{p.title}</h3>
+                                    <p className="font-inter text-sm text-elf-muted leading-relaxed relative z-10">
+                                        {p.desc}
+                                    </p>
                                 </div>
-                                <h3 className="font-playfair text-xl font-medium text-elf-charcoal mb-3">{p.title}</h3>
-                                <p className="font-inter text-sm text-elf-muted leading-relaxed">{p.desc}</p>
-                                {i < process.length - 1 && (
-                                    <div className="hidden lg:block absolute top-8 right-0 w-px h-12 bg-elf-border" />
-                                )}
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* ─── TESTIMONIALS ──────────────────────────────────── */}
-            <section className="py-28 px-6 bg-elf-warm border-y border-elf-border">
+            {/* ─── STATS ───────────────────────────────────────── */}
+            <section className="py-24 border-y border-elf-border bg-white">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-12">
+                    {stats.map((s) => (
+                        <div key={s.label} className="text-center">
+                            <div className="font-playfair text-4xl text-elf-charcoal mb-2 font-medium">{s.value}</div>
+                            <div className="font-inter text-[10px] tracking-[0.3em] uppercase text-elf-gold">{s.label}</div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ─── TESTIMONIALS ────────────────────────────────── */}
+            <section className="py-32 px-6 bg-white overflow-hidden">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-20">
                         <span className="section-label">Kind Words</span>
-                        <h2 className="heading-serif text-4xl md:text-5xl">
-                            Stories That
-                            <span className="italic text-elf-gold"> Warm Our Hearts</span>
-                        </h2>
-                        <div className="gold-divider" />
+                        <h2 className="heading-serif text-4xl mt-2">Client Testimonials</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         {testimonials.map((t) => (
-                            <div key={t.name} className="bg-white p-10 border border-elf-border card-hover flex flex-col">
-                                <div className="flex gap-1 mb-6">
-                                    {Array.from({ length: t.rating }).map((_, i) => (
-                                        <Star key={i} size={14} className="text-elf-gold fill-elf-gold" />
+                            <div key={t.name} className="relative p-12 bg-elf-warm border border-elf-border text-center">
+                                <div className="flex justify-center gap-1 mb-8">
+                                    {[...Array(t.rating)].map((_, i) => (
+                                        <Star key={i} size={14} className="fill-elf-gold text-elf-gold" />
                                     ))}
                                 </div>
-                                <blockquote className="font-playfair text-lg italic text-elf-charcoal leading-relaxed mb-8 flex-1">
+                                <blockquote className="font-playfair text-2xl italic text-elf-charcoal leading-relaxed mb-10">
                                     "{t.quote}"
                                 </blockquote>
-                                <div>
-                                    <div className="font-inter font-medium text-elf-charcoal text-sm">{t.name}</div>
-                                    <div className="font-inter text-xs text-elf-muted mt-1">{t.event}</div>
-                                </div>
+                                <div className="w-8 h-px bg-elf-gold mx-auto mb-6" />
+                                <div className="font-inter text-xs tracking-widest uppercase text-elf-charcoal font-bold">{t.name}</div>
+                                <div className="font-inter text-[10px] tracking-widest uppercase text-elf-muted mt-2">{t.event}</div>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ─── CTA BANNER ────────────────────────────────────── */}
-            <section className="py-32 px-6 bg-elf-charcoal relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-elf-gold/5 via-transparent to-elf-gold/5" />
-                <div className="relative text-center max-w-3xl mx-auto">
-                    <span className="section-label">Ready to Begin?</span>
-                    <h2 className="font-playfair text-4xl md:text-6xl font-medium text-white mb-6">
-                        Let's Create Something
+            {/* ─── FINAL CTA ───────────────────────────────────── */}
+            <section className="py-32 px-6 text-center relative overflow-hidden bg-elf-charcoal">
+                <div className="absolute inset-0 opacity-10 pointer-events-none"
+                    style={{ backgroundImage: 'radial-gradient(circle at center, #C9A96E 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+                <div className="relative z-10 max-w-2xl mx-auto">
+                    <span className="section-label mb-6 inline-block">Unforgettable Moments</span>
+                    <h2 className="font-playfair text-5xl md:text-6xl text-white font-medium mb-10">
+                        Ready to Begin Your
                         <br />
-                        <span className="text-elf-gold italic">Extraordinary</span>
+                        <span className="text-elf-gold italic">Next Chapter?</span>
                     </h2>
-                    <p className="font-inter text-white/50 text-base mb-12 max-w-xl mx-auto leading-relaxed">
-                        Start with a complimentary consultation. Tell us your vision and let us show you what's possible.
+                    <p className="font-inter text-white/40 text-lg mb-12 leading-relaxed">
+                        Let's discuss how we can bring your vision to life. Our first consultation is always complimentary.
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link href="/contact" className="btn-gold px-12 py-5 text-sm">
-                            Book a Consultation <ArrowRight size={16} />
-                        </Link>
-                        <Link href="/portfolio" className="font-inter text-sm tracking-widest uppercase text-white/50 hover:text-elf-gold transition-colors duration-200 flex items-center gap-2">
-                            See Our Portfolio <ArrowRight size={14} />
-                        </Link>
-                    </div>
+                    <Link href="/contact" className="btn-gold text-lg px-12 py-5">
+                        Inquire Now <ArrowRight size={20} className="ml-2" />
+                    </Link>
                 </div>
             </section>
 
