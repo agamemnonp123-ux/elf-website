@@ -150,7 +150,9 @@ export default function ServicePage() {
                                 {vendors.map(v => (
                                     <div key={v.id} className="group border-b border-elf-border pb-8 last:border-0 last:pb-0">
                                         <div className="flex justify-between items-center mb-3">
-                                            <h4 className="font-playfair text-xl group-hover:text-elf-gold transition-colors">{v.name}</h4>
+                                            <Link href={`/vendors/${v.id}`} className="hover:text-elf-gold transition-colors">
+                                                <h4 className="font-playfair text-xl">{v.name}</h4>
+                                            </Link>
                                             <Star size={14} className="text-elf-gold fill-elf-gold" />
                                         </div>
                                         <p className="font-inter text-sm text-elf-muted leading-relaxed mb-4">{v.description}</p>
