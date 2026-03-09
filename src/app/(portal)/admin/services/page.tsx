@@ -4,8 +4,25 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ArrowLeft, Loader2, Plus, Sparkles, Trash2, Edit3, Save, X, Info } from 'lucide-react';
+import {
+    ArrowLeft, Loader2, Plus, Sparkles, Trash2, Edit3, Save,
+    X, Info, Image as ImageIcon, Users, ExternalLink, Camera
+} from 'lucide-react';
 import Link from 'next/link';
+
+interface Vendor {
+    id: string;
+    name: string;
+    description: string;
+    contact_info: string;
+}
+
+interface Asset {
+    id: string;
+    image_url: string;
+    reference_type: 'service' | 'vendor';
+    reference_id: string;
+}
 
 interface Service {
     id: string;
@@ -22,12 +39,35 @@ export default function ServicesManagement() {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingService, setEditingService] = useState<Partial<Service> | null>(null);
+    const [vendors, setVendors] = useState<Vendor[]>([]);
+    const [assets, setAssets] = useState<Asset[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
+    // Vendor form state
+    const [newVendor, setNewVendor] = useState<Partial<Vendor>>({ name: '', description: '' });
+
     const supabase = createClient();
 
     useEffect(() => {
         fetchServices();
     }, []);
+
+    const fetchDetailData = async (serviceId: string) => {
+        const { data: vData } = await supabase.from('vendors').select('*').eq('service_id', serviceId);
+        const { data: aData } = await supabase.from('service_assets').select('*').eq('reference_id', serviceId);
+        if (vData) setVendors(vData);
+        if (aData) setAssets(aData);
+    };
+
+    useEffect(() => {
+        if (editingService?.id) {
+            fetchDetailData(editingService.id);
+        } else {
+            setVendors([]);
+            setAssets([]);
+        }
+    }, [editingService?.id]);
 
     const fetchServices = async () => {
         setLoading(true);
@@ -44,68 +84,90 @@ export default function ServicesManagement() {
         if (!editingService?.title || !editingService?.slug) return;
 
         setLoading(true);
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('services')
             .upsert({
                 ...editingService,
                 slug: editingService.slug.toLowerCase().replace(/\s+/g, '-'),
+            })
+            .select()
+            .single();
+
+        if (!error && data) {
+            setEditingService(data);
+            fetchServices();
+            alert('Service saved successfully!');
+        } else if (error) {
+            alert('Error saving service: ' + error.message);
+        }
+        setLoading(false);
+    };
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!editingService?.id || !e.target.files?.[0]) return;
+
+        setUploading(true);
+        const file = e.target.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `services/${editingService.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('portfolio')
+            .upload(filePath, file);
+
+        if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+                .from('portfolio')
+                .getPublicUrl(filePath);
+
+            await supabase.from('service_assets').insert({
+                reference_type: 'service',
+                reference_id: editingService.id,
+                image_url: publicUrl
             });
 
+            fetchDetailData(editingService.id);
+        }
+        setUploading(false);
+    };
+
+    const handleAddVendor = async () => {
+        if (!editingService?.id || !newVendor.name) return;
+
+        const { error } = await supabase.from('vendors').insert({
+            ...newVendor,
+            service_id: editingService.id
+        });
+
         if (!error) {
-            setEditingService(null);
-            fetchServices();
-        } else {
-            alert('Error saving service: ' + error.message);
-            setLoading(false);
+            setNewVendor({ name: '', description: '' });
+            fetchDetailData(editingService.id);
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this service?')) return;
+    const handleDeleteVendor = async (id: string) => {
+        const { error } = await supabase.from('vendors').delete().eq('id', id);
+        if (!error && editingService?.id) fetchDetailData(editingService.id);
+    };
 
-        const { error } = await supabase
-            .from('services')
-            .delete()
-            .eq('id', id);
-
-        if (!error) fetchServices();
+    const handleDeleteAsset = async (id: string) => {
+        const { error } = await supabase.from('service_assets').delete().eq('id', id);
+        if (!error && editingService?.id) fetchDetailData(editingService.id);
     };
 
     const suggestContent = async () => {
-        if (!editingService?.title) {
-            alert('Please enter a service title first.');
-            return;
-        }
-
+        if (!editingService?.title) return;
         setIsGenerating(true);
-
-        // This is a UI simulation of AI generation. In a real world, this would call an Edge Function or AI API.
-        // For this task, I'm providing a robust local generator that acts as the "AI Prompt Result".
+        // Simulation as before
         setTimeout(() => {
-            const title = editingService.title!;
-            const generationMap: Record<string, any> = {
-                'Decor': {
-                    desc: 'Transforming spaces into immersive experiences. From ethereal floral installations to avant-garde lighting, our decor services are designed to captivate and inspire.',
-                    features: ['Bespoke Floral Design', 'Custom Floor Plans', 'Luxury Rentals', 'Ambient Lighting Design']
-                },
-                'Catering': {
-                    desc: 'A culinary journey tailored to your taste. We specialize in sophisticated sweets, elegant finger foods, and traditional delicacies served with modern flair.',
-                    features: ['Custom Menu Design', 'Artisan Sweet Displays', 'Gourmet Finger Foods', 'Professional Service Staff']
-                }
-            };
-
-            const result = generationMap[title] || {
-                desc: `Premium ${title} services tailored for luxury events and unforgettable moments. Every detail is handled with precision and artistic flair.`,
-                features: [`Bespoke ${title} Design`, 'Luxury Coordination', 'Personalized Consultation', 'Flawless Execution']
-            };
-
             setEditingService(prev => ({
                 ...prev,
-                description: result.desc,
-                features: result.features
+                description: `Premium ${editingService.title} services tailored for luxury events. We coordinate with the finest partners to ensure every detail radiates excellence and artistic flair.`,
+                features: [`Bespoke ${editingService.title} Design`, 'Partner Coordination', 'Luxury Logistics', 'Flawless Execution']
             }));
             setIsGenerating(false);
-        }, 1500);
+        }, 1000);
     };
 
     return (
@@ -120,7 +182,7 @@ export default function ServicesManagement() {
                                 <ArrowLeft size={14} /> Back to Dashboard
                             </Link>
                             <h1 className="font-playfair text-4xl font-medium">Service Architecture</h1>
-                            <p className="text-elf-muted text-sm mt-2">Manage the elements that make your events extraordinary.</p>
+                            <p className="text-elf-muted text-sm mt-2">Manage categories, trusted vendors, and beautiful galleries.</p>
                         </div>
                         {!editingService && (
                             <button
@@ -133,104 +195,130 @@ export default function ServicesManagement() {
                     </div>
 
                     {editingService ? (
-                        <div className="bg-white border border-elf-border p-8 md:p-12 shadow-sm max-w-4xl mx-auto">
-                            <div className="flex justify-between items-center mb-10">
-                                <h2 className="font-playfair text-2xl">{editingService.id ? 'Refine Service' : 'New Creation'}</h2>
-                                <button onClick={() => setEditingService(null)} className="text-elf-muted hover:text-elf-charcoal">
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
-                                        <label className="label-xs">Service Title</label>
-                                        <input
-                                            value={editingService.title}
-                                            onChange={e => setEditingService({ ...editingService, title: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                                            className="input-base"
-                                            placeholder="e.g. Bespoke Decor"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="label-xs">Symbol (Emoji or Icon Name)</label>
-                                        <div className="flex gap-4">
-                                            <input
-                                                value={editingService.emoji}
-                                                onChange={e => setEditingService({ ...editingService, emoji: e.target.value })}
-                                                className="input-base w-20 text-center text-xl"
-                                                placeholder="✨"
-                                            />
-                                            <input
-                                                value={editingService.icon_name}
-                                                onChange={e => setEditingService({ ...editingService, icon_name: e.target.value })}
-                                                className="input-base flex-1"
-                                                placeholder="Sparkles (Lucide name)"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="flex justify-between items-end mb-2">
-                                        <label className="label-xs mb-0">Description</label>
-                                        <button
-                                            onClick={suggestContent}
-                                            disabled={isGenerating}
-                                            className="text-[10px] tracking-widest uppercase text-elf-gold font-bold flex items-center gap-1 hover:gap-2 transition-all"
-                                        >
-                                            {isGenerating ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                                            AI Suggest
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Main Details */}
+                            <div className="lg:col-span-2 space-y-8">
+                                <div className="bg-white border border-elf-border p-8 md:p-12 shadow-sm">
+                                    <div className="flex justify-between items-center mb-10">
+                                        <h2 className="font-playfair text-2xl">{editingService.id ? 'Refine Service' : 'New Creation'}</h2>
+                                        <button onClick={() => setEditingService(null)} className="text-elf-muted hover:text-elf-charcoal">
+                                            <X size={20} />
                                         </button>
                                     </div>
-                                    <textarea
-                                        rows={4}
-                                        value={editingService.description}
-                                        onChange={e => setEditingService({ ...editingService, description: e.target.value })}
-                                        className="input-base resize-none"
-                                        placeholder="Describe the magic behind this service..."
-                                    />
+
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div>
+                                                <label className="label-xs">Service Title</label>
+                                                <input
+                                                    value={editingService.title}
+                                                    onChange={e => setEditingService({ ...editingService, title: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                                                    className="input-base"
+                                                    placeholder="e.g. Bespoke Decor"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="label-xs">Symbol & Icon</label>
+                                                <div className="flex gap-4">
+                                                    <input value={editingService.emoji} onChange={e => setEditingService({ ...editingService, emoji: e.target.value })} className="input-base w-20 text-center text-xl" />
+                                                    <input value={editingService.icon_name} onChange={e => setEditingService({ ...editingService, icon_name: e.target.value })} className="input-base flex-1" placeholder="Lucide Icon Name" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="flex justify-between items-end mb-2">
+                                                <label className="label-xs mb-0">Description</label>
+                                                <button onClick={suggestContent} disabled={isGenerating} className="text-[10px] tracking-widest uppercase text-elf-gold font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                                    <Sparkles size={10} /> AI Suggest
+                                                </button>
+                                            </div>
+                                            <textarea rows={4} value={editingService.description} onChange={e => setEditingService({ ...editingService, description: e.target.value })} className="input-base resize-none" />
+                                        </div>
+
+                                        <div>
+                                            <label className="label-xs">Core Features (comma separated)</label>
+                                            <input value={editingService.features?.join(', ')} onChange={e => setEditingService({ ...editingService, features: e.target.value.split(',').map(s => s.trim()) })} className="input-base" />
+                                        </div>
+
+                                        <button onClick={handleSave} disabled={loading} className="btn-gold w-full py-4 flex items-center justify-center gap-2">
+                                            {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                            {editingService.id ? 'Update Service' : 'Initialize Service'}
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="label-xs">Core Features (comma separated)</label>
-                                    <input
-                                        value={editingService.features?.join(', ')}
-                                        onChange={e => setEditingService({ ...editingService, features: e.target.value.split(',').map(s => s.trim()) })}
-                                        className="input-base"
-                                        placeholder="Feature 1, Feature 2, Feature 3"
-                                    />
-                                </div>
+                                {/* Gallery Section */}
+                                {editingService.id && (
+                                    <div className="bg-white border border-elf-border p-8 md:p-12 shadow-sm">
+                                        <div className="flex justify-between items-center mb-8">
+                                            <h3 className="font-playfair text-xl">Service Gallery</h3>
+                                            <label className="cursor-pointer text-elf-gold hover:text-elf-charcoal transition-colors">
+                                                <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
+                                                {uploading ? <Loader2 size={20} className="animate-spin" /> : <span className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold"><Camera size={16} /> Add Photo</span>}
+                                            </label>
+                                        </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {assets.map(asset => (
+                                                <div key={asset.id} className="relative group aspect-square bg-elf-warm border border-elf-border overflow-hidden">
+                                                    <img src={asset.image_url} alt="Gallery" className="w-full h-full object-cover" />
+                                                    <button onClick={() => handleDeleteAsset(asset.id)} className="absolute top-2 right-2 p-1 bg-white/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {assets.length === 0 && <div className="col-span-full py-8 text-center text-elf-muted text-sm italic">No images in this gallery yet.</div>}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
-                                <div className="pt-6 flex gap-4">
-                                    <button
-                                        disabled={loading}
-                                        onClick={handleSave}
-                                        className="btn-gold flex-1 py-4 flex items-center justify-center gap-2"
-                                    >
-                                        {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                                        Initialize Service
-                                    </button>
-                                </div>
+                            {/* Sidebar: Vendors */}
+                            <div className="space-y-8">
+                                {editingService.id ? (
+                                    <div className="bg-white border border-elf-border p-8 shadow-sm">
+                                        <h3 className="font-playfair text-xl mb-6 flex items-center gap-2"><Users size={20} className="text-elf-gold" /> Partner Vendors</h3>
+
+                                        <div className="mb-8 p-6 bg-elf-cream border border-elf-border space-y-4">
+                                            <input value={newVendor.name} onChange={e => setNewVendor({ ...newVendor, name: e.target.value })} placeholder="Vendor Name" className="text-xs w-full bg-white border border-elf-border p-3 focus:outline-none focus:border-elf-gold" />
+                                            <textarea value={newVendor.description} onChange={e => setNewVendor({ ...newVendor, description: e.target.value })} placeholder="Short Description" className="text-xs w-full bg-white border border-elf-border p-3 focus:outline-none focus:border-elf-gold h-20 resize-none" />
+                                            <button onClick={handleAddVendor} className="w-full text-[10px] tracking-widest uppercase bg-elf-charcoal text-white py-3 hover:bg-elf-gold transition-colors">Add Partner</button>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {vendors.map(v => (
+                                                <div key={v.id} className="p-4 border border-elf-border flex justify-between items-start group">
+                                                    <div>
+                                                        <h4 className="font-playfair text-sm mb-1">{v.name}</h4>
+                                                        <p className="text-[10px] text-elf-muted line-clamp-2">{v.description}</p>
+                                                    </div>
+                                                    <button onClick={() => handleDeleteVendor(v.id)} className="text-elf-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {vendors.length === 0 && <p className="text-xs text-elf-muted italic text-center py-4">No partners listed for this category.</p>}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white border border-elf-border p-12 text-center">
+                                        <ImageIcon size={32} className="text-elf-border mx-auto mb-4" />
+                                        <p className="text-xs text-elf-muted leading-relaxed">Save the service details first to enable character and gallery management.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ) : loading ? (
                         <div className="py-24 flex justify-center text-elf-gold">
                             <Loader2 size={40} className="animate-spin" />
                         </div>
-                    ) : services.length === 0 ? (
-                        <div className="bg-white border border-elf-border p-24 text-center">
-                            <Sparkles size={48} className="text-elf-border mx-auto mb-6" />
-                            <h3 className="font-playfair text-xl mb-4">No services in the database</h3>
-                            <p className="text-elf-muted max-w-md mx-auto">Click "Add New Service" to start building your dynamic offerings.</p>
-                        </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {services.map(s => (
-                                <div key={s.id} className="bg-white border border-elf-border p-8 group hover:border-elf-gold transition-all">
+                                <div key={s.id} className="bg-white border border-elf-border p-8 group hover:border-elf-gold transition-all relative">
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="text-4xl">{s.emoji}</div>
-                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex gap-2">
                                             <button onClick={() => setEditingService(s)} className="p-2 text-elf-muted hover:text-elf-gold transition-colors">
                                                 <Edit3 size={16} />
                                             </button>
@@ -240,32 +328,15 @@ export default function ServicesManagement() {
                                         </div>
                                     </div>
                                     <h3 className="font-playfair text-xl font-medium mb-3">{s.title}</h3>
-                                    <p className="text-sm text-elf-muted line-clamp-3 leading-relaxed mb-6">
-                                        {s.description}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {s.features?.slice(0, 2).map(f => (
-                                            <span key={f} className="text-[9px] tracking-widest uppercase bg-elf-cream border border-elf-border px-2 py-1">
-                                                {f}
-                                            </span>
-                                        ))}
+                                    <p className="text-sm text-elf-muted line-clamp-2 leading-relaxed mb-6">{s.description}</p>
+                                    <div className="flex items-center justify-between pt-4 border-t border-elf-border">
+                                        <span className="text-[9px] tracking-widest uppercase text-elf-gold font-bold">Category</span>
+                                        <span className="text-[9px] tracking-widest uppercase text-elf-muted">{s.slug}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     )}
-
-                    <div className="mt-20 p-8 bg-elf-charcoal text-white flex flex-col md:flex-row items-center gap-8 border border-elf-gold/20">
-                        <div className="w-12 h-12 bg-elf-gold/10 flex items-center justify-center text-elf-gold">
-                            <Info size={24} />
-                        </div>
-                        <div className="flex-1">
-                            <h4 className="font-playfair text-lg">AI Integration Ready</h4>
-                            <p className="text-white/50 text-xs mt-1 leading-relaxed">
-                                Use the "AI Suggest" button within the editor to instantly generate high-luxury descriptions and feature lists based on your service title.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </section>
 
