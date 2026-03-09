@@ -69,8 +69,16 @@ export async function updateSession(request: NextRequest) {
             .eq('id', user.id)
             .single();
 
-        if (request.nextUrl.pathname.startsWith('/admin') && profile?.role !== 'admin') {
+        // Admin check: either role is admin or specific email
+        const isAdmin = profile?.role === 'admin' || user.email === 'admin@elfevents.et';
+
+        if (request.nextUrl.pathname.startsWith('/admin') && !isAdmin) {
             return NextResponse.redirect(new URL('/client/dashboard', request.url));
+        }
+
+        if (request.nextUrl.pathname.startsWith('/client') && isAdmin) {
+            // Optional: Redirect admin to admin dashboard if they try to access client portal
+            // return NextResponse.redirect(new URL('/admin/dashboard', request.url));
         }
     }
 

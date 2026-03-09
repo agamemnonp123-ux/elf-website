@@ -13,7 +13,7 @@ export default function Footer() {
                             <div className="text-[9px] font-inter tracking-[0.35em] uppercase text-elf-gold">Events</div>
                         </div>
                         <p className="text-sm font-inter text-white/50 leading-relaxed max-w-xs">
-                            Crafting unforgettable moments. Full-service wedding and event planning with a white-glove approach.
+                            Elf (እልፍ) – Creating magical weddings and unforgettable events through elegant design, creative planning, and perfect attention to detail.
                         </p>
                         <div className="flex gap-4 mt-6">
                             <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-elf-gold hover:text-elf-gold transition-colors duration-300">

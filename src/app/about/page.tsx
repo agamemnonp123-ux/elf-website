@@ -57,6 +57,9 @@ export default function AboutPage() {
                         <p className="font-inter text-elf-muted leading-relaxed">
                             Today, elf Events has planned over 250 events across Ethiopia and internationally, each one a testimony to our dedication to excellence.
                         </p>
+                        <p className="font-inter text-elf-muted leading-relaxed mt-6 italic border-l-2 border-elf-gold pl-6">
+                            The name Elf (እልፍ) represents abundance, beauty, and unforgettable moments. Our brand is built on the idea of bringing people together to celebrate life’s most important occasions with style, creativity, and excellence.
+                        </p>
                     </div>
 
                     {/* Visual block */}

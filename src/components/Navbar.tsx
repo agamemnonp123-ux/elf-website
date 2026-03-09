@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Menu, X, User } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import LogoutButton from './LogoutButton';
 
 const navLinks = [
     { href: '/', label: 'Home' },
@@ -68,9 +69,16 @@ export default function Navbar() {
                 {/* CTA */}
                 <div className="hidden md:flex items-center gap-6">
                     {user ? (
-                        <Link href="/client/dashboard" className="flex items-center gap-2 text-sm font-inter font-medium tracking-widest uppercase text-elf-gold hover:text-elf-charcoal transition-colors">
-                            <User size={16} /> Portal
-                        </Link>
+                        <div className="flex items-center gap-4">
+                            <Link
+                                href={user.email === 'admin@elfevents.et' ? '/admin/dashboard' : '/client/dashboard'}
+                                className="flex items-center gap-2 text-sm font-inter font-medium tracking-widest uppercase text-elf-gold hover:text-elf-charcoal transition-colors"
+                            >
+                                <User size={16} /> Portal
+                            </Link>
+                            <div className="w-px h-4 bg-elf-border" />
+                            <LogoutButton className="text-[10px] font-inter font-medium tracking-widest uppercase text-elf-muted hover:text-red-400 transition-colors" />
+                        </div>
                     ) : (
                         <Link href="/login" className="text-sm font-inter font-medium tracking-widest uppercase text-elf-muted hover:text-elf-gold transition-colors">
                             Login

@@ -105,7 +105,7 @@ export default function HomePage() {
                     </h1>
 
                     <p className="font-inter text-white/50 text-lg md:text-xl max-w-xl mx-auto mb-12 leading-relaxed">
-                        elf Events crafts unforgettable weddings and luxury experiences with a white-glove approach that makes every detail effortless.
+                        Elf (እልፍ) – Creating magical weddings and unforgettable events through elegant design, creative planning, and perfect attention to detail.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

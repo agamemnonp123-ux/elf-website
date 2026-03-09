@@ -1,23 +1,54 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 
-const portfolioItems = [
-    { id: 1, title: 'Meron & Dawit', category: 'Wedding', style: 'Modern Luxe', location: 'Sheraton Addis', color: 'from-amber-900/40 to-stone-900/60', accent: '#C9A96E' },
-    { id: 2, title: 'Sintayehu Gala', category: 'Corporate', style: 'Glamour', location: 'Skylight Hotel', color: 'from-slate-800/60 to-zinc-900/80', accent: '#E8C97E' },
-    { id: 3, title: 'Selam & Yonas', category: 'Wedding', style: 'Destination', location: 'Lalibela', color: 'from-stone-700/50 to-amber-950/70', accent: '#C9A96E' },
-    { id: 4, title: 'Hana & Michael', category: 'Wedding', style: 'Rustic Chic', location: 'Kuriftu Resort', color: 'from-green-900/40 to-stone-900/60', accent: '#C9A96E' },
-    { id: 5, title: 'Brand Horizon Launch', category: 'Corporate', style: 'Minimalist', location: 'Radisson Blu', color: 'from-zinc-800/60 to-slate-900/70', accent: '#E8C97E' },
-    { id: 6, title: 'Tigist & Amanuel', category: 'Wedding', style: 'Garden Romance', location: 'Entoto Park', color: 'from-emerald-900/40 to-stone-900/60', accent: '#C9A96E' },
-    { id: 7, title: 'Firehiwot & Tesfaye', category: 'Wedding', style: 'Grand Luxe', location: 'Hilton Addis', color: 'from-purple-900/30 to-stone-900/70', accent: '#C9A96E' },
-    { id: 8, title: 'Harvest Gala 2024', category: 'Corporate', style: 'Festive', location: 'Capital Hotel', color: 'from-amber-800/40 to-stone-900/60', accent: '#E8C97E' },
-    { id: 9, title: 'Bethlehem & Simon', category: 'Wedding', style: 'Intimate', location: 'Private Villa', color: 'from-rose-900/30 to-stone-900/70', accent: '#C9A96E' },
-];
+interface Project {
+    id: string;
+    title: string;
+    category: string;
+    style: string;
+    location: string;
+    image_url: string;
+}
 
-const styles = ['All', 'Wedding', 'Corporate', 'Destination'];
+const styles = ['All', 'Wedding', 'Corporate', 'Destination', 'Social'];
 
 export default function PortfolioPage() {
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [activeFilter, setActiveFilter] = useState('All');
+    const supabase = createClient();
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (!error && data) {
+                setProjects(data);
+                setFilteredProjects(data);
+            }
+            setLoading(false);
+        };
+        fetchProjects();
+    }, []);
+
+    useEffect(() => {
+        if (activeFilter === 'All') {
+            setFilteredProjects(projects);
+        } else {
+            setFilteredProjects(projects.filter(p => p.category === activeFilter));
+        }
+    }, [activeFilter, projects]);
+
     return (
         <main>
             <Navbar />
@@ -45,59 +76,81 @@ export default function PortfolioPage() {
             </section>
 
             {/* Gallery */}
-            <section className="py-28 px-6 bg-elf-cream">
+            <section className="py-28 px-6 bg-elf-cream min-h-[60vh]">
                 <div className="max-w-7xl mx-auto">
-                    {/* Filter pills (static visual — filtering would need client component) */}
+                    {/* Filter pills */}
                     <div className="flex flex-wrap gap-3 justify-center mb-16">
-                        {styles.map((s, i) => (
-                            <span key={s}
-                                className={`px-6 py-2 text-xs font-inter tracking-widest uppercase border cursor-pointer transition-all duration-200 ${i === 0 ? 'bg-elf-charcoal text-white border-elf-charcoal' : 'bg-white text-elf-muted border-elf-border hover:border-elf-charcoal hover:text-elf-charcoal'
+                        {styles.map((s) => (
+                            <button
+                                key={s}
+                                onClick={() => setActiveFilter(s)}
+                                className={`px-6 py-2 text-xs font-inter tracking-widest uppercase border transition-all duration-200 ${activeFilter === s
+                                        ? 'bg-elf-charcoal text-white border-elf-charcoal shadow-lg'
+                                        : 'bg-white text-elf-muted border-elf-border hover:border-elf-charcoal hover:text-elf-charcoal'
                                     }`}
                             >
                                 {s}
-                            </span>
+                            </button>
                         ))}
                     </div>
 
-                    {/* Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {portfolioItems.map((item) => (
-                            <div key={item.id} className="group relative overflow-hidden cursor-pointer card-hover">
-                                {/* Placeholder image with gradient bg */}
-                                <div className={`relative h-72 bg-gradient-to-br ${item.color} flex items-end p-8`}>
-                                    {/* Decorative pattern */}
-                                    <div className="absolute inset-0 opacity-10"
-                                        style={{
-                                            backgroundImage: `radial-gradient(circle at 30% 30%, ${item.accent} 1px, transparent 1px)`,
-                                            backgroundSize: '24px 24px',
-                                        }}
-                                    />
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-24 text-elf-gold">
+                            <Loader2 size={40} className="animate-spin mb-4" />
+                            <p className="font-inter tracking-widest uppercase text-xs text-elf-muted">Curating Gallery...</p>
+                        </div>
+                    ) : filteredProjects.length === 0 ? (
+                        <div className="text-center py-24 text-elf-muted font-inter italic">
+                            No projects found in this category.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {filteredProjects.map((item) => (
+                                <div key={item.id} className="group relative overflow-hidden cursor-pointer card-hover h-[450px]">
+                                    {/* Image */}
+                                    {item.image_url ? (
+                                        <img
+                                            src={item.image_url}
+                                            alt={item.title}
+                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-elf-warm flex items-center justify-center text-elf-muted/20">
+                                            <span className="font-playfair text-4xl italic">elf</span>
+                                        </div>
+                                    )}
+
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-elf-charcoal via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+                                    {/* Category Overlay */}
+                                    <div className="absolute inset-0 bg-elf-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                                     {/* Category badge */}
                                     <div className="absolute top-6 left-6">
-                                        <span className="text-xs font-inter tracking-widest uppercase text-white/60 border border-white/20 px-3 py-1">
+                                        <span className="text-[10px] font-inter tracking-[0.2em] uppercase text-white border border-white/30 px-3 py-1 bg-black/20 backdrop-blur-sm">
                                             {item.category}
                                         </span>
                                     </div>
 
-                                    {/* Hover overlay */}
-                                    <div className="absolute inset-0 bg-elf-charcoal/0 group-hover:bg-elf-charcoal/40 transition-all duration-500" />
-
                                     {/* Content */}
-                                    <div className="relative z-10">
-                                        <div className="text-xs font-inter tracking-widest uppercase text-white/50 mb-2">{item.style}</div>
-                                        <h3 className="font-playfair text-2xl font-medium text-white">{item.title}</h3>
-                                        <div className="text-xs font-inter text-white/50 mt-1">{item.location}</div>
+                                    <div className="absolute bottom-8 left-8 right-8 z-10 transform transition-transform duration-500 group-hover:-translate-y-2">
+                                        <div className="text-[10px] font-inter tracking-[0.3em] uppercase text-elf-gold mb-3 font-semibold">{item.style}</div>
+                                        <h3 className="font-playfair text-3xl font-medium text-white mb-2">{item.title}</h3>
+                                        <div className="text-xs font-inter text-white/60 tracking-wider flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-elf-gold" />
+                                            {item.location}
+                                        </div>
                                     </div>
 
                                     {/* Hover arrow */}
-                                    <div className="absolute right-6 bottom-6 w-10 h-10 bg-elf-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
-                                        <ArrowRight size={16} className="text-white" />
+                                    <div className="absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+                                        <ArrowRight size={20} className="text-elf-charcoal" />
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
