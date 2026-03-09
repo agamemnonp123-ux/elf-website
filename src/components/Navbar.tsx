@@ -115,7 +115,27 @@ export default function Navbar() {
                             {l.label}
                         </Link>
                     ))}
-                    <Link href="/contact" onClick={() => setOpen(false)} className="btn-gold text-xs py-3 px-6 w-fit mt-2">
+                    {user ? (
+                        <>
+                            <Link
+                                href={user.email === 'admin@elfevents.et' ? '/admin/dashboard' : '/client/dashboard'}
+                                onClick={() => setOpen(false)}
+                                className="text-sm font-inter font-medium tracking-widest uppercase text-elf-gold hover:text-elf-charcoal flex items-center gap-2 py-2"
+                            >
+                                <User size={16} /> Portal
+                            </Link>
+                            <LogoutButton className="text-sm font-inter font-medium tracking-widest uppercase text-elf-muted hover:text-red-400 py-2 text-left" />
+                        </>
+                    ) : (
+                        <Link
+                            href="/login"
+                            onClick={() => setOpen(false)}
+                            className="text-sm font-inter font-medium tracking-widest uppercase text-elf-muted hover:text-elf-gold py-2"
+                        >
+                            Login
+                        </Link>
+                    )}
+                    <Link href="/contact" onClick={() => setOpen(false)} className="btn-gold text-xs py-3 px-6 w-fit mt-4">
                         Inquire Now
                     </Link>
                 </nav>

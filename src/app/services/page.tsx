@@ -1,213 +1,87 @@
+'use client';
+
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Sparkles, Utensils, Brush, Camera, Music, Cake, Car } from 'lucide-react';
 
 const packages = [
     {
-        name: 'Full Planning',
-        tagline: 'The Complete Journey',
-        duration: '12+ months',
-        ideal: 'Couples who want a fully curated, stress-free experience from day one.',
-        highlights: [
-            'Venue scouting & contract review',
-            'Full vendor curation & management',
-            'Bespoke design concept & mood board',
-            'Budget management & tracking',
-            'Master timeline creation',
-            'RSVP & guest management',
-            'Rehearsal coordination',
-            'Full day-of execution team',
-        ],
-        featured: false,
+        title: 'Full Wedding Planning',
+        desc: 'The ultimate white-glove experience. We manage every single detail from venue selection to the farewell brunch.',
+        price: 'Bespoke Quote',
+        icon: '✦'
     },
     {
-        name: 'Partial Planning',
-        tagline: 'The Perfect Partnership',
-        duration: '6 months',
-        ideal: 'Couples who have a head start and need expert guidance to bring it all together.',
-        highlights: [
-            'Vendor recommendations & meetings',
-            'Design refinement & styling',
-            'Timeline & logistics finalization',
-            'Month-of coordination',
-            'Rehearsal management',
-            'Day-of execution support',
-            'Budget review & adjustments',
-            'Vendor confirmation calls',
-        ],
-        featured: true,
+        title: 'Design & Concept',
+        desc: 'For the couple who has the logistics handled but wants a breathtaking, high-concept aesthetic.',
+        price: 'Bespoke Quote',
+        icon: '✿'
     },
     {
-        name: 'Day-of Coordination',
-        tagline: 'Seamless Execution',
-        duration: '4 weeks',
-        ideal: 'Couples who are fully planned and need a professional to execute flawlessly.',
-        highlights: [
-            'Vendor confirmation & briefing',
-            'Detailed run-of-show creation',
-            'Rehearsal coordination',
-            'Full day-of lead coordinator',
-            'Vendor point of contact',
-            'Issue resolution & contingency',
-            'Setup supervision',
-            'Post-event wrap coordination',
-        ],
-        featured: false,
-    },
-    {
-        name: 'Design Only',
-        tagline: 'Pure Aesthetic Vision',
-        duration: 'Custom',
-        ideal: 'Couples who have their logistics sorted and need a design visionary.',
-        highlights: [
-            'Custom mood boards',
-            'Color palette development',
-            'Décor sourcing & curation',
-            'Floral concept design',
-            'Stationery direction',
-            'Lighting plan',
-            'Setup supervision',
-            'Style guide document',
-        ],
-        featured: false,
-    },
+        title: 'Day-of Coordination',
+        desc: 'You create the vision, we ensure its flawless execution so you can simply be present.',
+        price: 'Bespoke Quote',
+        icon: '◇'
+    }
 ];
 
-const corporateServices = [
-    { icon: '◈', title: 'Product Launches', desc: 'Brand-first events that create lasting impressions and media coverage.' },
-    { icon: '◇', title: 'Gala Dinners', desc: 'Sophisticated evenings designed around your brand identity and guests.' },
-    { icon: '✦', title: 'Brand Activations', desc: 'Immersive experiences that deepen connection between brand and audience.' },
-    { icon: '✿', title: 'Conferences & Retreats', desc: 'Productive, beautifully organized professional gatherings.' },
-    { icon: '❋', title: 'Holiday Parties', desc: 'Memorable celebrations that bring teams and clients together.' },
-];
-
-const subServices = [
-    { name: 'Decor 🎀', icon: '✨' },
-    { name: 'Catering (Sweets & Finger Food) 🍪', icon: '🍽️' },
-    { name: 'Makeup Artist 💄', icon: '🎨' },
-    { name: 'Photo & Video 📸🎥', icon: '🎬' },
-    { name: 'Sound System 🔊', icon: '🎵' },
-    { name: 'Cake Designer 🎂', icon: '🍰' },
-    { name: 'Dress Rental 👗', icon: '⚜️' },
+const essentials = [
+    { name: 'Decor', slug: 'decor', icon: Sparkles, emoji: '✨' },
+    { name: 'Catering', slug: 'catering', icon: Utensils, emoji: '🍽️' },
+    { name: 'Makeup Artist', slug: 'makeup', icon: Brush, emoji: '🎨' },
+    { name: 'Photo & Video', slug: 'photo-video', icon: Camera, emoji: '🎬' },
+    { name: 'Sound System', slug: 'sound-system', icon: Music, emoji: '🎵' },
+    { name: 'Cake Designer', slug: 'cake-designer', icon: Cake, emoji: '🍰' },
+    { name: 'Transportation', slug: 'transportation', icon: Car, emoji: '⚜️' },
 ];
 
 export default function ServicesPage() {
     return (
-        <main>
+        <main className="bg-elf-cream">
             <Navbar />
 
-            {/* Page Header */}
-            <section className="pt-40 pb-24 px-6 bg-elf-charcoal relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-elf-gold/5 to-transparent" />
+            {/* Header */}
+            <section className="pt-48 pb-24 px-6 bg-elf-charcoal relative overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.03]"
                     style={{
                         backgroundImage: 'linear-gradient(#C9A96E 1px, transparent 1px), linear-gradient(90deg, #C9A96E 1px, transparent 1px)',
                         backgroundSize: '60px 60px',
                     }}
                 />
-                <div className="relative text-center max-w-3xl mx-auto">
-                    <span className="section-label">Our Services</span>
-                    <h1 className="font-playfair text-5xl md:text-7xl font-medium text-white leading-tight">
-                        Planning Packages
+                <div className="max-w-4xl mx-auto text-center relative">
+                    <span className="section-label mb-4 block">Our Offerings</span>
+                    <h1 className="font-playfair text-5xl md:text-7xl text-white font-medium mb-8">
+                        The Art of
                         <br />
-                        <span className="text-elf-gold italic">Built for You</span>
+                        <span className="text-elf-gold italic">Curation</span>
                     </h1>
-                    <div className="w-16 h-px bg-elf-gold mx-auto my-8" />
-                    <p className="font-inter text-white/50 text-lg leading-relaxed">
-                        Every couple is different. Our packages are designed to meet you where you are and elevate the journey ahead.
+                    <div className="w-20 h-px bg-elf-gold mx-auto mb-8" />
+                    <p className="font-inter text-white/50 text-lg leading-relaxed max-w-2xl mx-auto">
+                        Whether you need full-scale planning or specialized a la carte services, we bring the same level of luxury and attention to every element.
                     </p>
                 </div>
             </section>
 
-            {/* Wedding Packages */}
-            <section className="py-28 px-6 bg-elf-cream">
+            {/* Main Packages */}
+            <section className="py-28 px-6">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-20">
-                        <span className="section-label">Weddings</span>
-                        <h2 className="heading-serif text-4xl md:text-5xl">
-                            Choose Your
-                            <span className="italic text-elf-gold"> Level of Support</span>
-                        </h2>
+                    <div className="text-center mb-16">
+                        <span className="section-label">Signature Experience</span>
+                        <h2 className="heading-serif text-4xl mt-2">Planning Packages</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {packages.map((pkg) => (
-                            <div
-                                key={pkg.name}
-                                className={`relative flex flex-col border p-8 card-hover ${pkg.featured
-                                    ? 'bg-elf-charcoal border-elf-gold text-white'
-                                    : 'bg-white border-elf-border'
-                                    }`}
-                            >
-                                {pkg.featured && (
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-elf-gold px-4 py-1 text-white text-xs font-inter tracking-widest uppercase">
-                                        Most Popular
-                                    </div>
-                                )}
-                                <div className={`text-xs font-inter tracking-[0.3em] uppercase mb-2 ${pkg.featured ? 'text-elf-gold' : 'text-elf-gold'}`}>
-                                    {pkg.duration}
-                                </div>
-                                <h3 className={`font-playfair text-2xl font-medium mb-1 ${pkg.featured ? 'text-white' : 'text-elf-charcoal'}`}>
-                                    {pkg.name}
-                                </h3>
-                                <p className={`font-playfair italic text-base mb-4 ${pkg.featured ? 'text-white/60' : 'text-elf-muted'}`}>
-                                    {pkg.tagline}
-                                </p>
-                                <div className={`w-8 h-px mb-6 ${pkg.featured ? 'bg-elf-gold' : 'bg-elf-border'}`} />
-                                <p className={`font-inter text-xs leading-relaxed mb-6 ${pkg.featured ? 'text-white/50' : 'text-elf-muted'}`}>
-                                    {pkg.ideal}
-                                </p>
-                                <ul className="space-y-3 flex-1 mb-8">
-                                    {pkg.highlights.map((h) => (
-                                        <li key={h} className="flex items-start gap-3">
-                                            <Check size={13} className="text-elf-gold mt-0.5 shrink-0" />
-                                            <span className={`font-inter text-xs leading-relaxed ${pkg.featured ? 'text-white/70' : 'text-elf-muted'}`}>
-                                                {h}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Link
-                                    href="/contact"
-                                    className={`flex items-center justify-center gap-2 py-3 px-6 text-xs font-inter tracking-widest uppercase transition-all duration-300 ${pkg.featured
-                                        ? 'bg-elf-gold text-white hover:bg-elf-gold-light'
-                                        : 'border border-elf-charcoal text-elf-charcoal hover:bg-elf-charcoal hover:text-white'
-                                        }`}
-                                >
-                                    Inquire <ArrowRight size={12} />
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Corporate */}
-            <section className="py-28 px-6 bg-elf-charcoal">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-                    <div>
-                        <span className="section-label">Corporate & Social</span>
-                        <h2 className="font-playfair text-4xl md:text-5xl text-white font-medium leading-tight mb-8">
-                            Events That Elevate
-                            <br />
-                            <span className="text-elf-gold italic">Your Brand</span>
-                        </h2>
-                        <p className="font-inter text-white/50 leading-relaxed mb-8">
-                            From intimate product launches to grand galas, we bring the same white-glove precision to every corporate event. Your brand's story deserves a stage worthy of it.
-                        </p>
-                        <Link href="/contact" className="btn-gold">
-                            Discuss Your Event <ArrowRight size={16} />
-                        </Link>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                        {corporateServices.map((s) => (
-                            <div key={s.title} className="flex items-start gap-5 p-6 border border-white/10 hover:border-elf-gold/40 transition-colors duration-300 group">
-                                <div className="text-xl text-elf-gold font-playfair w-6 shrink-0">{s.icon}</div>
-                                <div>
-                                    <h3 className="font-playfair text-lg text-white font-medium mb-1 group-hover:text-elf-gold transition-colors duration-300">{s.title}</h3>
-                                    <p className="font-inter text-sm text-white/40 leading-relaxed">{s.desc}</p>
+                            <div key={pkg.title} className="bg-white border border-elf-border p-10 flex flex-col items-center text-center group hover:border-elf-gold transition-all duration-500">
+                                <div className="text-4xl text-elf-gold mb-6 font-playfair">{pkg.icon}</div>
+                                <h3 className="font-playfair text-2xl mb-4">{pkg.title}</h3>
+                                <p className="font-inter text-elf-muted text-sm leading-relaxed mb-8">{pkg.desc}</p>
+                                <div className="mt-auto pt-8 border-t border-elf-border w-full flex justify-between items-center">
+                                    <span className="text-[10px] tracking-widest uppercase text-elf-gold font-bold">{pkg.price}</span>
+                                    <Link href="/contact" className="text-xs tracking-widest uppercase text-elf-charcoal hover:text-elf-gold flex items-center gap-2 transition-all">
+                                        Inquire <ArrowRight size={12} />
+                                    </Link>
                                 </div>
                             </div>
                         ))}
@@ -215,42 +89,47 @@ export default function ServicesPage() {
                 </div>
             </section>
 
-            {/* Supplemental Services */}
-            <section className="py-28 px-6 bg-white">
+            {/* Essentials Grid */}
+            <section className="py-28 px-6 bg-white border-y border-elf-border">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <span className="section-label">A la Carte</span>
-                        <h2 className="heading-serif text-4xl mb-4">Event Essentials</h2>
-                        <p className="font-inter text-elf-muted max-w-xl mx-auto font-medium">
-                            Need specific support? Our curated network of partners and in-house expertise covers every detail.
-                        </p>
+                        <h2 className="heading-serif text-4xl mt-2">Extraordinary Essentials</h2>
+                        <p className="font-inter text-elf-muted text-sm mt-4 max-w-lg mx-auto">Click into any essential to discover how we elevate every individual thread of your event.</p>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-                        {subServices.map((s) => (
-                            <div key={s.name} className="flex flex-col items-center text-center p-8 bg-elf-cream border border-elf-border group hover:border-elf-gold transition-colors duration-300">
-                                <div className="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">{s.icon}</div>
-                                <div className="font-inter text-[10px] tracking-widest uppercase text-elf-charcoal leading-tight font-semibold">
-                                    {s.name.replace(/[^\x00-\x7F]/g, '').trim()}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {essentials.map((s) => (
+                            <Link
+                                key={s.slug}
+                                href={`/services/${s.slug}`}
+                                className="group bg-elf-cream border border-elf-border p-10 text-center flex flex-col items-center justify-center hover:border-elf-gold hover:shadow-xl transition-all duration-500"
+                            >
+                                <div className="w-14 h-14 bg-white border border-elf-border flex items-center justify-center mb-6 text-elf-muted group-hover:text-elf-gold group-hover:border-elf-gold transition-all duration-500">
+                                    <s.icon size={24} strokeWidth={1.5} />
                                 </div>
-                            </div>
+                                <div className="text-2xl mb-2">{s.emoji}</div>
+                                <div className="font-inter text-xs tracking-[0.2em] uppercase text-elf-charcoal font-semibold mb-4">
+                                    {s.name}
+                                </div>
+                                <div className="text-[10px] tracking-widest uppercase text-elf-gold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                                    Explore <ArrowRight size={10} />
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Note on pricing */}
-            <section className="py-20 px-6 bg-elf-warm border-y border-elf-border">
-                <div className="max-w-3xl mx-auto text-center">
-                    <span className="section-label">Transparency</span>
-                    <h2 className="heading-serif text-3xl md:text-4xl mb-6">Custom Pricing for Every Vision</h2>
-                    <p className="font-inter text-elf-muted leading-relaxed mb-10">
-                        We don't believe in one-size-fits-all pricing. After your consultation, we'll craft a bespoke proposal that reflects your event's scope, style, and scale — with full transparency at every step.
-                    </p>
-                    <Link href="/contact" className="btn-gold">
-                        Request a Proposal <ArrowRight size={16} />
-                    </Link>
-                </div>
+            {/* CTA */}
+            <section className="py-24 px-6 text-center">
+                <h2 className="heading-serif text-4xl mb-6">Ready to Build Your Event?</h2>
+                <p className="font-inter text-elf-muted max-w-xl mx-auto mb-10 leading-relaxed">
+                    Contact us today for a bespoke consultation. Let's discuss which combination of services will best tell your unique story.
+                </p>
+                <Link href="/contact" className="btn-gold">
+                    Start Your Consultation <ArrowRight size={16} />
+                </Link>
             </section>
 
             <Footer />

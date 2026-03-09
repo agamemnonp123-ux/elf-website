@@ -27,13 +27,13 @@ const services = [
 ];
 
 const subServices = [
-    { name: 'Decor 🎀', icon: '✨' },
-    { name: 'Catering (Sweets & Finger Food) 🍪', icon: '🍽️' },
-    { name: 'Makeup Artist 💄', icon: '🎨' },
-    { name: 'Photo & Video 📸🎥', icon: '🎬' },
-    { name: 'Sound System 🔊', icon: '🎵' },
-    { name: 'Cake Designer 🎂', icon: '🍰' },
-    { name: 'Dress Rental 👗', icon: '⚜️' },
+    { slug: 'decor', name: 'Decor 🎀', icon: '✨' },
+    { slug: 'catering', name: 'Catering 🍽️', icon: '🍽️' },
+    { slug: 'makeup', name: 'Makeup Artist 🎨', icon: '🎨' },
+    { slug: 'photo-video', name: 'Photo & Video 🎬', icon: '🎬' },
+    { slug: 'sound-system', name: 'Sound System 🎵', icon: '🎵' },
+    { slug: 'cake-designer', name: 'Cake Designer 🍰', icon: '🍰' },
+    { slug: 'transportation', name: 'Transportation ⚜️', icon: '⚜️' },
 ];
 
 const stats = [
@@ -196,7 +196,9 @@ export default function HomePage() {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                         {subServices.map((s, i) => (
-                            <div key={s.name}
+                            <Link
+                                key={s.name}
+                                href={`/services/${s.slug}`}
                                 className="group bg-elf-cream border border-elf-border p-8 text-center flex flex-col items-center justify-center hover:border-elf-gold transition-all duration-500"
                                 style={{ animationDelay: `${i * 50}ms` }}
                             >
@@ -204,7 +206,7 @@ export default function HomePage() {
                                 <div className="font-inter text-[10px] tracking-widest uppercase text-elf-charcoal font-semibold leading-tight px-2 group-hover:text-elf-gold transition-colors">
                                     {s.name.replace(/[^\x00-\x7F]/g, '').trim()}
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
