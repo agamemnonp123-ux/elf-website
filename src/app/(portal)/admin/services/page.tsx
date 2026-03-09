@@ -55,9 +55,26 @@ export default function ServicesManagement() {
     }, []);
 
     const fetchDetailData = async (serviceId: string) => {
-        const { data: vData } = await supabase.from('vendors').select('*').eq('service_id', serviceId);
-        const { data: aData } = await supabase.from('service_assets').select('*').eq('reference_id', serviceId);
-        if (vData) setVendors(vData);
+        // Fetch vendors via join table
+        const { data: vData } = await supabase
+            .from('vendor_services')
+            .select(`
+                vendors (
+                    id,
+                    name,
+                    description,
+                    contact_info
+                )
+            `)
+            .eq('service_id', serviceId);
+
+        const { data: aData } = await supabase
+            .from('assets')
+            .select('*')
+            .eq('reference_id', serviceId)
+            .eq('reference_type', 'service');
+
+        if (vData) setVendors(vData.map((d: any) => d.vendors));
         if (aData) setAssets(aData);
     };
 
@@ -126,10 +143,11 @@ export default function ServicesManagement() {
                 .from('portfolio')
                 .getPublicUrl(filePath);
 
-            await supabase.from('service_assets').insert({
+            await supabase.from('assets').insert({
                 reference_type: 'service',
                 reference_id: editingService.id,
-                image_url: publicUrl
+                image_url: publicUrl,
+                asset_type: 'image'
             });
 
             fetchDetailData(editingService.id);
@@ -152,7 +170,12 @@ export default function ServicesManagement() {
     };
 
     const handleDeleteVendor = async (id: string) => {
-        const { error } = await supabase.from('vendors').delete().eq('id', id);
+        // Remove just the link in M2M
+        const { error } = await supabase
+            .from('vendor_services')
+            .delete()
+            .eq('vendor_id', id)
+            .eq('service_id', editingService?.id);
         if (!error && editingService?.id) fetchDetailData(editingService.id);
     };
 
@@ -160,7 +183,7 @@ export default function ServicesManagement() {
         if (!confirm('Are you sure you want to delete this service category? This will also remove all its vendors and galleries.')) return;
 
         // 1. Fetch assets for cleanup
-        const { data: assets } = await supabase.from('service_assets').select('image_url').eq('reference_id', id);
+        const { data: assets } = await supabase.from('assets').select('image_url').eq('reference_id', id).eq('reference_type', 'service');
 
         // 2. Delete from DB
         const { error } = await supabase.from('services').delete().eq('id', id);
@@ -179,7 +202,7 @@ export default function ServicesManagement() {
     };
 
     const handleDeleteAsset = async (asset: Asset) => {
-        const { error } = await supabase.from('service_assets').delete().eq('id', asset.id);
+        const { error } = await supabase.from('assets').delete().eq('id', asset.id);
         if (!error) {
             await deleteFileByUrl(asset.image_url);
             if (editingService?.id) fetchDetailData(editingService.id);
