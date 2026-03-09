@@ -48,6 +48,7 @@ export default function ServicesPage() {
             const { data } = await supabase
                 .from('services')
                 .select('*')
+                .eq('status', 'published') // Only show published
                 .order('created_at', { ascending: true });
             if (data) setEssentials(data);
             setLoading(false);

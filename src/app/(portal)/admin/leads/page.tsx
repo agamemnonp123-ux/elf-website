@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ArrowLeft, Loader2, Mail, Phone, Calendar, Trash2, CheckCircle, Clock } from 'lucide-react';
+import { ArrowLeft, Loader2, Mail, Phone, Calendar, Trash2, CheckCircle, Clock, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 interface Lead {
@@ -21,6 +21,8 @@ interface Lead {
     vision: string;
     referral: string;
     status: string;
+    priority: 'low' | 'medium' | 'high';
+    internal_notes: string;
     created_at: string;
 }
 
@@ -49,16 +51,16 @@ export default function LeadsManagement() {
         setLoading(false);
     };
 
-    const handleStatusChange = async (id: string, newStatus: string) => {
+    const handleUpdateLead = async (id: string, updates: Partial<Lead>) => {
         const { error } = await supabase
             .from('leads')
-            .update({ status: newStatus })
+            .update(updates)
             .eq('id', id);
 
         if (error) {
-            alert('Error updating status: ' + error.message);
+            alert('Error updating lead: ' + error.message);
         } else {
-            setLeads(leads.map(l => l.id === id ? { ...l, status: newStatus } : l));
+            setLeads(leads.map(l => l.id === id ? { ...l, ...updates } : l));
         }
     };
 
@@ -115,11 +117,21 @@ export default function LeadsManagement() {
                                             <div className="flex items-center gap-4 mb-4">
                                                 <h3 className="font-playfair text-2xl">{lead.name}</h3>
                                                 <span className={`text-[10px] tracking-widest uppercase px-3 py-1 font-semibold ${lead.status === 'new' ? 'bg-blue-50 text-blue-600' :
-                                                        lead.status === 'contacted' ? 'bg-amber-50 text-amber-600' :
-                                                            'bg-green-50 text-green-600'
+                                                    lead.status === 'contacted' ? 'bg-amber-50 text-amber-600' :
+                                                        'bg-green-50 text-green-600'
                                                     }`}>
                                                     {lead.status}
                                                 </span>
+                                                <select
+                                                    value={lead.priority || 'medium'}
+                                                    onChange={(e) => handleUpdateLead(lead.id, { priority: e.target.value as any })}
+                                                    className={`text-[9px] tracking-widest uppercase font-bold border-none bg-transparent cursor-pointer focus:ring-0 ${lead.priority === 'high' ? 'text-red-500' : lead.priority === 'low' ? 'text-blue-400' : 'text-elf-gold'
+                                                        }`}
+                                                >
+                                                    <option value="low">Low Priority</option>
+                                                    <option value="medium">Medium Priority</option>
+                                                    <option value="high">High Priority</option>
+                                                </select>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-inter text-elf-muted mb-6">
@@ -140,22 +152,26 @@ export default function LeadsManagement() {
                                             <div className="bg-elf-cream p-6 border border-elf-border mb-6">
                                                 <div className="text-[10px] tracking-widest uppercase text-elf-gold mb-2 font-semibold">Client Vision</div>
                                                 <p className="text-sm italic text-elf-charcoal leading-relaxed">"{lead.vision}"</p>
-                                                {lead.services && lead.services.length > 0 && (
-                                                    <div className="mt-4 flex flex-wrap gap-2">
-                                                        {lead.services.map(s => (
-                                                            <span key={s} className="text-[9px] bg-white border border-elf-border px-2 py-1 uppercase tracking-tighter">
-                                                                {s}
-                                                            </span>
-                                                        ))}
+
+                                                <div className="mt-8 pt-6 border-t border-elf-border/50">
+                                                    <div className="text-[10px] tracking-widest uppercase text-elf-charcoal mb-3 font-bold flex items-center gap-2">
+                                                        <ShieldAlert size={10} /> Internal Backstage Notes
                                                     </div>
-                                                )}
+                                                    <textarea
+                                                        value={lead.internal_notes || ''}
+                                                        onChange={(e) => setLeads(leads.map(l => l.id === lead.id ? { ...l, internal_notes: e.target.value } : l))}
+                                                        onBlur={(e) => handleUpdateLead(lead.id, { internal_notes: e.target.value })}
+                                                        placeholder="Add private office notes only you can see..."
+                                                        className="w-full bg-white border border-elf-border p-4 text-xs font-inter focus:outline-none focus:border-elf-gold resize-none h-24"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div className="lg:w-64 flex lg:flex-col justify-end gap-3">
                                             {lead.status !== 'contacted' && (
                                                 <button
-                                                    onClick={() => handleStatusChange(lead.id, 'contacted')}
+                                                    onClick={() => handleUpdateLead(lead.id, { status: 'contacted' })}
                                                     className="flex-1 py-3 border border-elf-border text-[10px] tracking-widest uppercase hover:bg-elf-warm transition-colors flex items-center justify-center gap-2"
                                                 >
                                                     <Clock size={12} /> Mark Contacted
@@ -163,7 +179,7 @@ export default function LeadsManagement() {
                                             )}
                                             {lead.status !== 'converted' && (
                                                 <button
-                                                    onClick={() => handleStatusChange(lead.id, 'converted')}
+                                                    onClick={() => handleUpdateLead(lead.id, { status: 'converted' })}
                                                     className="flex-1 py-3 bg-elf-gold text-white text-[10px] tracking-widest uppercase hover:bg-elf-gold-light transition-colors flex items-center justify-center gap-2 shadow-sm"
                                                 >
                                                     <CheckCircle size={12} /> Mark Booked

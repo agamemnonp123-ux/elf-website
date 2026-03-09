@@ -15,6 +15,7 @@ interface Project {
     style: string;
     location: string;
     image_url: string;
+    status: 'draft' | 'published';
     created_at: string;
 }
 
@@ -120,6 +121,9 @@ export default function ProjectsManagement() {
                                         <div className="absolute top-4 left-4">
                                             <span className="text-[10px] tracking-widest uppercase bg-white/90 text-elf-charcoal px-3 py-1 font-semibold">
                                                 {project.category}
+                                            </span>
+                                            <span className={`ml-2 text-[10px] tracking-widest uppercase px-3 py-1 font-bold ${project.status === 'draft' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'}`}>
+                                                {project.status || 'Published'}
                                             </span>
                                         </div>
                                     </div>

@@ -15,6 +15,7 @@ interface ProjectForm {
     style: string;
     location: string;
     image_url: string;
+    status: 'draft' | 'published';
 }
 
 const CATEGORIES = ['Wedding', 'Corporate', 'Destination', 'Social'];
@@ -30,6 +31,7 @@ export default function ProjectEditor({ id }: { id?: string }) {
         style: '',
         location: '',
         image_url: '',
+        status: 'draft',
     });
 
     const [loading, setLoading] = useState(isEditing);
@@ -181,6 +183,23 @@ export default function ProjectEditor({ id }: { id?: string }) {
                                     className="form-input"
                                     placeholder="e.g., Sheraton Addis"
                                 />
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <div className="flex items-center gap-4 p-6 bg-elf-cream border border-elf-border">
+                                    <div className="flex-1">
+                                        <label className="text-[10px] tracking-widest uppercase text-elf-charcoal font-bold block mb-1">Publication Status</label>
+                                        <p className="text-[10px] text-elf-muted font-inter">Draft stories do not appear on the public portfolio.</p>
+                                    </div>
+                                    <select
+                                        value={form.status}
+                                        onChange={e => setForm({ ...form, status: e.target.value as any })}
+                                        className="bg-white border border-elf-border px-4 py-2 text-xs uppercase tracking-widest font-bold focus:outline-none focus:border-elf-gold"
+                                    >
+                                        <option value="draft">Draft</option>
+                                        <option value="published">Published</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="md:col-span-2">

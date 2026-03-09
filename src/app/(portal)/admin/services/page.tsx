@@ -35,6 +35,7 @@ interface Service {
     description: string;
     features: string[];
     is_essential: boolean;
+    status: 'draft' | 'published';
 }
 
 export default function ServicesManagement() {
@@ -267,7 +268,7 @@ export default function ServicesManagement() {
                         </div>
                         {!editingService && (
                             <button
-                                onClick={() => setEditingService({ title: '', emoji: '✨', features: [], is_essential: true })}
+                                onClick={() => setEditingService({ title: '', emoji: '✨', features: [], is_essential: true, status: 'draft' })}
                                 className="btn-gold flex items-center gap-2"
                             >
                                 <Plus size={16} /> Add New Service
@@ -305,6 +306,21 @@ export default function ServicesManagement() {
                                                     <input value={editingService.icon_name} onChange={e => setEditingService({ ...editingService, icon_name: e.target.value })} className="input-base flex-1" placeholder="Lucide Icon Name" />
                                                 </div>
                                             </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-4 p-4 bg-elf-cream border border-elf-border">
+                                            <div className="flex-1">
+                                                <label className="label-xs mb-1">Publication Status</label>
+                                                <p className="text-[10px] text-elf-muted">Drafts are hidden from the public website.</p>
+                                            </div>
+                                            <select
+                                                value={editingService.status || 'published'}
+                                                onChange={e => setEditingService({ ...editingService, status: e.target.value as any })}
+                                                className="bg-white border border-elf-border p-2 text-xs uppercase tracking-widest font-bold focus:outline-none focus:border-elf-gold"
+                                            >
+                                                <option value="draft">Draft</option>
+                                                <option value="published">Published</option>
+                                            </select>
                                         </div>
 
                                         <div>
@@ -411,7 +427,9 @@ export default function ServicesManagement() {
                                     <h3 className="font-playfair text-xl font-medium mb-3">{s.title}</h3>
                                     <p className="text-sm text-elf-muted line-clamp-2 leading-relaxed mb-6">{s.description}</p>
                                     <div className="flex items-center justify-between pt-4 border-t border-elf-border">
-                                        <span className="text-[9px] tracking-widest uppercase text-elf-gold font-bold">Category</span>
+                                        <span className={`text-[9px] tracking-widest uppercase font-bold ${s.status === 'draft' ? 'text-amber-500' : 'text-elf-gold'}`}>
+                                            {s.status === 'draft' ? 'Draft' : 'Published'}
+                                        </span>
                                         <span className="text-[9px] tracking-widest uppercase text-elf-muted">{s.slug}</span>
                                     </div>
                                 </div>
