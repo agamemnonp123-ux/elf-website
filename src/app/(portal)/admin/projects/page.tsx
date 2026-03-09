@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { deleteFileByUrl } from '@/utils/storage';
 import { Plus, Edit2, Trash2, Loader2, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 
 interface Project {
@@ -42,19 +43,26 @@ export default function ProjectsManagement() {
         setLoading(false);
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this project?')) return;
+    const handleDelete = async (project: Project) => {
+        if (!confirm(`Are you sure you want to delete "${project.title}"?`)) return;
 
-        const { error } = await supabase
+        // 1. Delete record from database
+        const { error: dbError } = await supabase
             .from('projects')
             .delete()
-            .eq('id', id);
+            .eq('id', project.id);
 
-        if (error) {
-            alert('Error deleting project: ' + error.message);
-        } else {
-            setProjects(projects.filter(p => p.id !== id));
+        if (dbError) {
+            alert('Error deleting project: ' + dbError.message);
+            return;
         }
+
+        // 2. Cleanup physical file from storage (Silent failure is okay here)
+        if (project.image_url) {
+            await deleteFileByUrl(project.image_url);
+        }
+
+        setProjects(projects.filter(p => p.id !== project.id));
     };
 
     return (
@@ -127,7 +135,7 @@ export default function ProjectsManagement() {
                                                 <Edit2 size={12} /> Edit
                                             </Link>
                                             <button
-                                                onClick={() => handleDelete(project.id)}
+                                                onClick={() => handleDelete(project)}
                                                 className="w-12 flex items-center justify-center border border-elf-border text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
                                             >
                                                 <Trash2 size={14} />

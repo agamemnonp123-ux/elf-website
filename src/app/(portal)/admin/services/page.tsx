@@ -9,6 +9,7 @@ import {
     X, Info, Image as ImageIcon, Users, ExternalLink, Camera
 } from 'lucide-react';
 import Link from 'next/link';
+import { deleteFileByUrl } from '@/utils/storage';
 
 interface Vendor {
     id: string;
@@ -84,10 +85,14 @@ export default function ServicesManagement() {
         if (!editingService?.title || !editingService?.slug) return;
 
         setLoading(true);
+        // Sanitize features: trim and filter empty
+        const sanitizedFeatures = editingService.features?.map(f => f.trim()).filter(f => f !== '') || [];
+
         const { data, error } = await supabase
             .from('services')
             .upsert({
                 ...editingService,
+                features: sanitizedFeatures,
                 slug: editingService.slug.toLowerCase().replace(/\s+/g, '-'),
             })
             .select()
@@ -151,9 +156,34 @@ export default function ServicesManagement() {
         if (!error && editingService?.id) fetchDetailData(editingService.id);
     };
 
-    const handleDeleteAsset = async (id: string) => {
-        const { error } = await supabase.from('service_assets').delete().eq('id', id);
-        if (!error && editingService?.id) fetchDetailData(editingService.id);
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this service category? This will also remove all its vendors and galleries.')) return;
+
+        // 1. Fetch assets for cleanup
+        const { data: assets } = await supabase.from('service_assets').select('image_url').eq('reference_id', id);
+
+        // 2. Delete from DB
+        const { error } = await supabase.from('services').delete().eq('id', id);
+
+        if (!error) {
+            // 3. Cleanup files
+            if (assets) {
+                for (const asset of assets) {
+                    await deleteFileByUrl(asset.image_url);
+                }
+            }
+            fetchServices();
+        } else {
+            alert('Error deleting service: ' + error.message);
+        }
+    };
+
+    const handleDeleteAsset = async (asset: Asset) => {
+        const { error } = await supabase.from('service_assets').delete().eq('id', asset.id);
+        if (!error) {
+            await deleteFileByUrl(asset.image_url);
+            if (editingService?.id) fetchDetailData(editingService.id);
+        }
     };
 
     const suggestContent = async () => {
@@ -262,7 +292,7 @@ export default function ServicesManagement() {
                                             {assets.map(asset => (
                                                 <div key={asset.id} className="relative group aspect-square bg-elf-warm border border-elf-border overflow-hidden">
                                                     <img src={asset.image_url} alt="Gallery" className="w-full h-full object-cover" />
-                                                    <button onClick={() => handleDeleteAsset(asset.id)} className="absolute top-2 right-2 p-1 bg-white/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => handleDeleteAsset(asset)} className="absolute top-2 right-2 p-1 bg-white/90 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <Trash2 size={14} />
                                                     </button>
                                                 </div>

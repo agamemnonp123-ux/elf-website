@@ -53,6 +53,21 @@ export default function UsersManagement() {
         }
     };
 
+    const handleDeleteUser = async (profile: Profile) => {
+        if (!confirm(`Are you sure you want to remove the profile for "${profile.full_name || 'Anonymous'}"?`)) return;
+
+        const { error } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', profile.id);
+
+        if (error) {
+            alert('Error deleting profile: ' + error.message);
+        } else {
+            setProfiles(profiles.filter(p => p.id !== profile.id));
+        }
+    };
+
     return (
         <main className="min-h-screen bg-elf-cream">
             <Navbar />
@@ -129,7 +144,10 @@ export default function UsersManagement() {
                                                                 Promote to Admin
                                                             </button>
                                                         )}
-                                                        <button className="p-2 text-red-300 hover:text-red-500 transition-colors">
+                                                        <button
+                                                            onClick={() => handleDeleteUser(profile)}
+                                                            className="p-2 text-red-300 hover:text-red-500 transition-colors"
+                                                        >
                                                             <Trash2 size={16} />
                                                         </button>
                                                     </div>

@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ArrowLeft, Save, Loader2, Image as ImageIcon, X, Upload } from 'lucide-react';
 import Link from 'next/link';
+import { deleteFileByUrl } from '@/utils/storage';
 
 interface ProjectForm {
     title: string;
@@ -61,6 +62,11 @@ export default function ProjectEditor({ id }: { id?: string }) {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Cleanup old image if replacing
+        if (form.image_url) {
+            await deleteFileByUrl(form.image_url);
+        }
+
         setUploading(true);
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -80,6 +86,13 @@ export default function ProjectEditor({ id }: { id?: string }) {
             setForm({ ...form, image_url: publicUrl });
         }
         setUploading(false);
+    };
+
+    const handleRemoveImage = async () => {
+        if (form.image_url) {
+            await deleteFileByUrl(form.image_url);
+            setForm({ ...form, image_url: '' });
+        }
     };
 
     const handleSave = async (e: React.FormEvent) => {
@@ -182,7 +195,7 @@ export default function ProjectEditor({ id }: { id?: string }) {
                                             </label>
                                             <button
                                                 type="button"
-                                                onClick={() => setForm({ ...form, image_url: '' })}
+                                                onClick={handleRemoveImage}
                                                 className="bg-white text-red-500 px-4 py-2 rounded-full text-xs font-semibold hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
                                             >
                                                 <X size={14} /> Remove
