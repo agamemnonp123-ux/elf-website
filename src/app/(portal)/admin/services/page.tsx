@@ -21,8 +21,9 @@ interface Vendor {
 interface Asset {
     id: string;
     image_url: string;
-    reference_type: 'service' | 'vendor';
+    reference_type: string;
     reference_id: string;
+    asset_type: string;
 }
 
 interface Service {
@@ -138,19 +139,25 @@ export default function ServicesManagement() {
             .from('portfolio')
             .upload(filePath, file);
 
-        if (!uploadError) {
+        if (uploadError) {
+            alert('Error uploading to storage: ' + uploadError.message);
+        } else {
             const { data: { publicUrl } } = supabase.storage
                 .from('portfolio')
                 .getPublicUrl(filePath);
 
-            await supabase.from('assets').insert({
+            const { error: insertError } = await supabase.from('assets').insert({
                 reference_type: 'service',
                 reference_id: editingService.id,
                 image_url: publicUrl,
                 asset_type: 'image'
             });
 
-            fetchDetailData(editingService.id);
+            if (insertError) {
+                alert('Error recording asset: ' + insertError.message);
+            } else {
+                fetchDetailData(editingService.id);
+            }
         }
         setUploading(false);
     };
@@ -158,25 +165,46 @@ export default function ServicesManagement() {
     const handleAddVendor = async () => {
         if (!editingService?.id || !newVendor.name) return;
 
-        const { error } = await supabase.from('vendors').insert({
-            ...newVendor,
-            service_id: editingService.id
-        });
+        // 1. Create vendor if it doesn't exist or just create a new one for this service
+        const { data: vendor, error: vError } = await supabase
+            .from('vendors')
+            .insert(newVendor)
+            .select()
+            .single();
 
-        if (!error) {
-            setNewVendor({ name: '', description: '' });
-            fetchDetailData(editingService.id);
+        if (!vError && vendor) {
+            // 2. Link to service via join table
+            const { error: linkError } = await supabase.from('vendor_services').insert({
+                vendor_id: vendor.id,
+                service_id: editingService.id
+            });
+
+            if (linkError) {
+                alert('Error linking vendor: ' + linkError.message);
+            } else {
+                setNewVendor({ name: '', description: '' });
+                fetchDetailData(editingService.id);
+            }
+        } else if (vError) {
+            alert('Error adding vendor profile: ' + vError.message);
         }
     };
 
-    const handleDeleteVendor = async (id: string) => {
+    const handleDeleteVendor = async (vendorId: string) => {
+        if (!editingService?.id) return;
+
         // Remove just the link in M2M
         const { error } = await supabase
             .from('vendor_services')
             .delete()
-            .eq('vendor_id', id)
-            .eq('service_id', editingService?.id);
-        if (!error && editingService?.id) fetchDetailData(editingService.id);
+            .eq('vendor_id', vendorId)
+            .eq('service_id', editingService.id);
+
+        if (!error) {
+            fetchDetailData(editingService.id);
+        } else {
+            alert('Error removing partner link: ' + error.message);
+        }
     };
 
     const handleDelete = async (id: string) => {

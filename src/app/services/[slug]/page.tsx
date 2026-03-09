@@ -30,9 +30,20 @@ export default function ServicePage() {
             const { data: service } = await supabase.from('services').select('*').eq('slug', slug).single();
             if (service) {
                 setData(service);
-                const { data: vData } = await supabase.from('vendors').select('*').eq('service_id', service.id);
-                const { data: aData } = await supabase.from('service_assets').select('*').eq('reference_id', service.id);
-                if (vData) setVendors(vData);
+                // Fetch vendors via join table
+                const { data: vData } = await supabase
+                    .from('vendor_services')
+                    .select('vendors(*)')
+                    .eq('service_id', service.id);
+
+                // Fetch assets
+                const { data: aData } = await supabase
+                    .from('assets')
+                    .select('*')
+                    .eq('reference_id', service.id)
+                    .eq('reference_type', 'service');
+
+                if (vData) setVendors(vData.map((d: any) => d.vendors));
                 if (aData) setAssets(aData);
             }
             setLoading(false);

@@ -56,7 +56,7 @@ export default function AdminDashboard() {
         setStats([
             { label: 'Total Leads', value: (leadsCount || 0).toString(), icon: Users, color: 'bg-blue-50 text-blue-600' },
             { label: 'Projects', value: (projectsCount || 0).toString(), icon: Layout, color: 'bg-purple-50 text-purple-600' },
-            { label: 'Support Inquiries', value: '0', icon: Mail, color: 'bg-elf-gold/10 text-elf-gold' },
+            { label: 'Client Inquiries', value: (leadsCount || 0).toString(), icon: Mail, color: 'bg-elf-gold/10 text-elf-gold' },
             { label: 'Registered Clients', value: (profilesCount || 0).toString(), icon: Users, color: 'bg-green-50 text-green-600' },
         ]);
 
